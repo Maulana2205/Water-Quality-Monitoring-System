@@ -1,17 +1,30 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('mqtt', () => ({ connect: vi.fn() }))
-import { connect as mqttConnect } from 'mqtt'
+vi.mock('mqtt', () => ({ default: { connect: vi.fn() } }))
+import mqtt from 'mqtt'
 
-const mockedConnect = mqttConnect as unknown as ReturnType<typeof vi.fn>
+const mockedConnect = (mqtt as unknown as { connect: ReturnType<typeof vi.fn> }).connect
 
 import { createMqttClient } from '../services/mqttClient'
 
 type FakeClient = {
   end: () => void
   subscribe: (topic: string) => void
-  on: (...args: unknown[]) => void
-  __handler?: (topic: string, payload: Buffer) => void
+  on: (event: string, handler: unknown) => void
+  handlers: Map<string, unknown>
+}
+
+function makeFakeClient(): FakeClient {
+  const handlers = new Map<string, unknown>()
+  const client = {
+    end: vi.fn(),
+    subscribe: vi.fn(),
+    on: vi.fn((event: string, handler: unknown) => {
+      handlers.set(event, handler)
+    }),
+    handlers,
+  } as unknown as FakeClient
+  return client
 }
 
 describe('mqttClient (mocked mqtt)', () => {
@@ -19,70 +32,51 @@ describe('mqttClient (mocked mqtt)', () => {
     vi.resetAllMocks()
   })
 
-  it('connects with the given url', () => {
-    const fakeClient = {
-      end: vi.fn(),
-      subscribe: vi.fn(),
-      on: vi.fn(),
-    } as unknown as FakeClient
-    mockedConnect.mockReturnValue(fakeClient)
+  it('connects with the given url and options', () => {
+    const client = makeFakeClient()
+    mockedConnect.mockReturnValue(client)
 
-    const client = createMqttClient('wss://broker:8084/mqtt')
-    client.connect()
+    const c = createMqttClient('wss://broker:8084/mqtt')
+    c.connect()
 
     expect(mockedConnect).toHaveBeenCalledWith('wss://broker:8084/mqtt', expect.any(Object))
   })
 
   it('subscribes to telemetry and alert topics', () => {
-    const fakeClient = {
-      end: vi.fn(),
-      subscribe: vi.fn(),
-      on: vi.fn(),
-    } as unknown as FakeClient
-    mockedConnect.mockReturnValue(fakeClient)
+    const client = makeFakeClient()
+    mockedConnect.mockReturnValue(client)
 
-    const client = createMqttClient('wss://broker:8084/mqtt')
-    client.connect()
-    client.subscribe('water_quality/+/telemetry')
-    client.subscribe('water_quality/+/alert')
+    const c = createMqttClient('wss://broker:8084/mqtt')
+    c.connect()
+    c.subscribe('water_quality/+/telemetry')
+    c.subscribe('water_quality/+/alert')
 
-    expect(fakeClient.subscribe).toHaveBeenCalledWith('water_quality/+/telemetry')
-    expect(fakeClient.subscribe).toHaveBeenCalledWith('water_quality/+/alert')
+    expect(client.subscribe).toHaveBeenCalledWith('water_quality/+/telemetry')
+    expect(client.subscribe).toHaveBeenCalledWith('water_quality/+/alert')
   })
 
   it('delivers incoming messages to the callback', () => {
     const received: string[] = []
-    let messageHandler = (() => {}) as (topic: string, payload: Buffer) => void
-    const fakeClient = {
-      end: vi.fn(),
-      subscribe: vi.fn(),
-      on: vi.fn((_event: string, handler: (topic: string, payload: Buffer) => void) => {
-        if (_event === 'message') messageHandler = handler
-      }),
-    } as unknown as FakeClient
-    mockedConnect.mockReturnValue(fakeClient)
+    const client = makeFakeClient()
+    mockedConnect.mockReturnValue(client)
 
-    const client = createMqttClient('wss://broker:8084/mqtt', (topic, payload) => {
+    const c = createMqttClient('wss://broker:8084/mqtt', (topic, payload) => {
       received.push(`${topic}:${payload.toString()}`)
     })
-    client.connect()
+    c.connect()
 
-    messageHandler('water_quality/esp32_water_01/telemetry', Buffer.from('{"device_id":"x"}'))
+    const handler = client.handlers.get('message') as (topic: string, payload: Buffer) => void
+    handler('water_quality/esp32_water_01/telemetry', Buffer.from('{"device_id":"x"}'))
     expect(received).toContain('water_quality/esp32_water_01/telemetry:{"device_id":"x"}')
   })
 
   it('end() disconnects cleanly', () => {
-    const end = vi.fn()
-    const fakeClient = {
-      end,
-      subscribe: vi.fn(),
-      on: vi.fn(),
-    } as unknown as FakeClient
-    mockedConnect.mockReturnValue(fakeClient)
+    const client = makeFakeClient()
+    mockedConnect.mockReturnValue(client)
 
-    const client = createMqttClient('wss://broker:8084/mqtt')
-    client.connect()
-    client.end()
-    expect(end).toHaveBeenCalled()
+    const c = createMqttClient('wss://broker:8084/mqtt')
+    c.connect()
+    c.end()
+    expect(client.end).toHaveBeenCalled()
   })
 })

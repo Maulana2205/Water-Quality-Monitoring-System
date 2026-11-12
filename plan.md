@@ -228,10 +228,10 @@ With the v1 figure of 0.444 W × 20 s = 8.88 J ≈ 2.47 mWh/cycle → ≈ **118 
 - [ ] Smoke test with MQTTX: subscribe, publish retained message, confirm ACL denies wrong topics.
 
 ### Phase 4: Web Dashboard (`web-dashboard/`)
-- [ ] `services/mqttClient.ts`: connect over WSS with auto-reconnect; subscribe `water_quality/+/telemetry` and `water_quality/+/alert`.
-- [ ] `lib/parseTelemetry.ts`: validate with zod against the shared schema; drop invalid messages (log count).
-- [ ] `lib/history.ts`: persist the last 48 points (≈ 24 h) in localStorage; hydrate on load; the retained message provides the latest point instantly.
-- [ ] `lib/staleness.ts`: `online` < 45 min, `stale` 45–90 min, `offline` > 90 min since last `ts` (deep sleep means “disconnected” ≠ “offline”).
+- [x] `services/mqttClient.ts`: connect over WSS with auto-reconnect; subscribe `water_quality/+/telemetry` and `water_quality/+/alert`.
+- [x] `lib/parseTelemetry.ts`: validate with zod against the shared schema; drop invalid messages (log count).
+- [x] `lib/history.ts`: persist the last 48 points (≈ 24 h) in localStorage; hydrate on load; the retained message provides the latest point instantly.
+- [x] `lib/staleness.ts`: `online` < 45 min, `stale` 45–90 min, `offline` > 90 min since last `ts` (deep sleep means “disconnected” ≠ “offline”).
 - [ ] UI:
   * Four `SensorCard`s with per-sensor color status (from `thresholds.json`).
   * `QualityStatusBadge` for overall status (Indonesian labels).
@@ -320,3 +320,11 @@ There is no ESP32-specific skill in the available set; for firmware, rely on the
 - [ ] Dashboard shows the latest reading immediately on load (retained) and flags stale devices.
 - [ ] No secrets in git; dashboard uses a subscribe-only credential; firmware uses a pinned CA.
 - [ ] LCA figures in the dashboard come from measured values, not assumptions.
+
+## Deviations (catatan waktu pelaksanaan)
+
+- `HistoricalChart` belum memiliki garis referensi ambang batas (plan §4 UI stretch item) — ditambahkan saat pasang threshold visual.
+- Alert toast/banner untuk QoS 1 belum ada; saat ini hanya banner jumlah pesan tidak valid. `useTelemetry` sudah mengumpulkan `alerts`, siap ditampilkan.
+- `DeviceStatus` belum menampilkan RSSI / seq gap / versi firmware — ditambahkan saat data dari firmware tersedia.
+- `SustainabilityPanel` masih pakai asumsi (TDS rendah = hemat energi); angka LCA aktual ditunggu hasil pengukuran `P_sleep` (Phase 6).
+- Pin hardware (sensor gate GPIO, DS18B20 GPIO) belum dikonfirmasi user → Phase 2c hardware layer (`src/`) ditunda.

@@ -1,0 +1,59 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { cleanup, render, screen } from '@testing-library/react'
+
+vi.mock('../hooks/useTelemetry', () => ({ useTelemetry: vi.fn() }))
+import { useTelemetry } from '../hooks/useTelemetry'
+import App from '../App'
+
+const mockUseTelemetry = useTelemetry as unknown as ReturnType<typeof vi.fn>
+
+afterEach(() => {
+  vi.resetAllMocks()
+  cleanup()
+})
+
+describe('App', () => {
+  it('menampilkan dashboard dengan telemetry terbaru', () => {
+    mockUseTelemetry.mockReturnValue({
+      latest: {
+        device_id: 'esp32_water_01',
+        ts: 1,
+        seq: 1,
+        temperature: 27.5,
+        turbidity_ntu: 12,
+        ph: 7.2,
+        tds_ppm: 145,
+        status: 'DRINKABLE',
+      },
+      history: [],
+      state: 'online',
+      connected: true,
+      invalidCount: 0,
+      alerts: [],
+    })
+
+    render(<App />)
+
+    expect(screen.getByText('Water Quality Dashboard')).toBeTruthy()
+    expect(screen.getByText('LAYAK KONSUMSI')).toBeTruthy()
+    expect(screen.getByText('ONLINE')).toBeTruthy()
+    expect(screen.getByText('Suhu')).toBeTruthy()
+    expect(screen.getByText('27.5 °C')).toBeTruthy()
+  })
+
+  it('menampilkan status offline dan pesan kosong ketika tidak ada data', () => {
+    mockUseTelemetry.mockReturnValue({
+      latest: null,
+      history: [],
+      state: 'offline',
+      connected: false,
+      invalidCount: 0,
+      alerts: [],
+    })
+
+    render(<App />)
+
+    expect(screen.getByText('OFFLINE')).toBeTruthy()
+    expect(screen.getByText(/Belum ada data riwayat/)).toBeTruthy()
+  })
+})

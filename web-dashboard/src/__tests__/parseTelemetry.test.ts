@@ -26,7 +26,7 @@ describe('parseTelemetry', () => {
   })
 
   it('rejects payload missing a required field', () => {
-    const { ts, ...rest } = valid
+    const { ts: _ts, ...rest } = valid
     const result = parseTelemetry(rest as never)
     expect(result.ok).toBe(false)
     if (!result.ok) {

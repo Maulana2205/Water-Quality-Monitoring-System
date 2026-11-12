@@ -1,5 +1,5 @@
-import { connect as mqttConnect } from 'mqtt'
-import type { IClientOptions, MqttClient as MqttJSClient } from 'mqtt'
+import mqtt from 'mqtt'
+import type { IClientOptions } from 'mqtt'
 
 export interface MqttClient {
   connect: () => void
@@ -8,12 +8,12 @@ export interface MqttClient {
 }
 
 /**
- * MQTT-over-WSS client for the dashboard (read-only: subscribe only, no publish).
- * Auto-reconnect is handled by mqtt.js. Credentials are read-only and must NOT
- * be publish-capable (Vite env vars are public in the bundle).
+ * MQTT-over-WSS client untuk dashboard (read-only: subscribe only, tanpa publish).
+ * Auto-reconnect ditangani mqtt.js. Kredensial read-only dan tidak boleh
+ * publish-capable (Vite env vars publik di bundle).
  */
 export function createMqttClient(url: string, onMessage?: (topic: string, payload: Buffer) => void): MqttClient {
-  let client: MqttJSClient | null = null
+  let client: ReturnType<typeof mqtt.connect> | null = null
 
   const options: IClientOptions = {
     reconnectPeriod: 4000,
@@ -23,14 +23,14 @@ export function createMqttClient(url: string, onMessage?: (topic: string, payloa
 
   function connect(): void {
     if (client) return
-    client = mqttConnect(url, options)
+    client = mqtt.connect(url, options)
     if (onMessage) {
       client.on('message', (topic: string, payload: Buffer) => {
         onMessage(topic, payload)
       })
     }
     client.on('error', () => {
-      // reconnect handled by mqtt.js; surface via onStateChange if needed
+      // reconnect ditangani mqtt.js
     })
   }
 

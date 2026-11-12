@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "boundary_semantics": {
+    "lower_inclusive": true,
+    "upper_exclusive": true,
+    "ph_both_inclusive": true
+  },
+  "parameters": {
+    "ph": {
+      "unit": "pH",
+      "drinkable": { "min": 6.5, "max": 8.5, "min_inclusive": true, "max_inclusive": true },
+      "hygiene_ok": { "min": 6.5, "max": 8.5, "min_inclusive": true, "max_inclusive": true },
+      "unfit": "outside_range"
+    },
+    "tds_ppm": {
+      "unit": "ppm",
+      "drinkable": { "min": 0, "max": 300, "min_inclusive": true, "max_inclusive": false },
+      "hygiene_ok": { "min": 0, "max": 1000, "min_inclusive": true, "max_inclusive": false },
+      "unfit": { "min": 1000 }
+    },
+    "turbidity_ntu": {
+      "unit": "NTU",
+      "drinkable": { "min": 0, "max": 3, "min_inclusive": true, "max_inclusive": false },
+      "hygiene_ok": { "min": 0, "max": 25, "min_inclusive": true, "max_inclusive": false },
+      "unfit": { "min": 25 }
+    },
+    "temperature_c": {
+      "unit": "°C",
+      "drinkable": { "ambient_delta": 3 },
+      "hygiene_ok": null,
+      "unfit": null
+    }
+  },
+  "alert_rule": {
+    "ph_out_of_range": [6.5, 8.5],
+    "tds_gt": 1000
+  },
+  "status_labels_id": {
+    "DRINKABLE": "LAYAK KONSUMSI",
+    "HYGIENE_OK": "LAYAK CUCI/MANDI",
+    "UNFIT": "TIDAK LAYAK"
+  }
+}

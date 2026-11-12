@@ -328,3 +328,9 @@ There is no ESP32-specific skill in the available set; for firmware, rely on the
 - `DeviceStatus` belum menampilkan RSSI / seq gap / versi firmware — ditambahkan saat data dari firmware tersedia.
 - `SustainabilityPanel` masih pakai asumsi (TDS rendah = hemat energi); angka LCA aktual ditunggu hasil pengukuran `P_sleep` (Phase 6).
 - Pin hardware (sensor gate GPIO, DS18B20 GPIO) belum dikonfirmasi user → Phase 2c hardware layer (`src/`) ditunda.
+
+Wiring:
+    DS18B20  DATA -> GPIO4   (VCC 3V3, GND)
+    SEN0189  A    -> pembagi 10k/20k -> GPIO34  (VCC 5V, GND)
+    pH 4502C Po   -> pembagi 10k/20k -> GPIO35  (V+ 5V, GND)
+    TDS v1.0 A    -> GPIO32  (VCC 3V3, GND)

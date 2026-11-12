@@ -233,12 +233,12 @@ With the v1 figure of 0.444 W × 20 s = 8.88 J ≈ 2.47 mWh/cycle → ≈ **118 
 - [x] `lib/history.ts`: persist the last 48 points (≈ 24 h) in localStorage; hydrate on load; the retained message provides the latest point instantly.
 - [x] `lib/staleness.ts`: `online` < 45 min, `stale` 45–90 min, `offline` > 90 min since last `ts` (deep sleep means “disconnected” ≠ “offline”).
 - [ ] UI:
-  * Four `SensorCard`s with per-sensor color status (from `thresholds.json`).
-  * `QualityStatusBadge` for overall status (Indonesian labels).
-  * `HistoricalChart` (Recharts) with threshold reference lines.
-  * `DeviceStatus` (last seen, RSSI, seq gap, firmware version).
+  * Four `SensorCard`s with per-sensor color status (from `thresholds.json`). [x]
+  * `QualityStatusBadge` for overall status (Indonesian labels). [x]
+  * `HistoricalChart` (Recharts) with threshold reference lines. [x]
+  * `DeviceStatus` (last seen, RSSI, seq gap, firmware version). [x]
   * `SustainabilityPanel`: active time, duty cycle, estimated energy/day, estimated battery life (computed from the formula in Phase 2, with measured `P_sleep` as a config value).
-  * Alert toast/banner for QoS 1 alerts.
+  * Alert toast/banner for QoS 1 alerts. [x]
 - [ ] Responsive layout (mobile-first, field use), light/dark mode.
 - [ ] (Stretch) Long-term storage: EMQX data integration to a free-tier time-series DB, so history survives beyond one browser.
 
@@ -323,11 +323,11 @@ There is no ESP32-specific skill in the available set; for firmware, rely on the
 
 ## Deviations (catatan waktu pelaksanaan)
 
-- `HistoricalChart` belum memiliki garis referensi ambang batas (plan §4 UI stretch item) — ditambahkan saat pasang threshold visual.
-- Alert toast/banner untuk QoS 1 belum ada; saat ini hanya banner jumlah pesan tidak valid. `useTelemetry` sudah mengumpulkan `alerts`, siap ditampilkan.
-- `DeviceStatus` belum menampilkan RSSI / seq gap / versi firmware — ditambahkan saat data dari firmware tersedia.
+- `HistoricalChart` — garis referensi ambang batas sudah ditambahkan (Recharts `ReferenceLine` dari `thresholds.json` mirror). Catatan: semua parameter berbagi satu Y-axis, garis pH tertekan saat skala TDS dominan; perbaikan sumbu Y terpisah ditunda.
+- Alert toast/banner QoS 1 sudah ditampilkan di `App.tsx` dari `useTelemetry.alerts` dengan label Indonesia.
+- `DeviceStatus` sudah menampilkan RSSI, versi firmware, dan peringatan lompat seq dari telemetry terbaru.
 - `SustainabilityPanel` masih pakai asumsi (TDS rendah = hemat energi); angka LCA aktual ditunggu hasil pengukuran `P_sleep` (Phase 6).
-- Pin hardware (sensor gate GPIO, DS18B20 GPIO) belum dikonfirmasi user → Phase 2c hardware layer (`src/`) ditunda.
+- Responsive grid sudah ada (mobile-first), tapi belum ada toggle dark mode terpisah (Tailwind `dark:` sudah aktif).
 
 Wiring:
     DS18B20  DATA -> GPIO4   (VCC 3V3, GND)

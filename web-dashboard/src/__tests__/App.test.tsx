@@ -56,4 +56,29 @@ describe('App', () => {
     expect(screen.getByText('OFFLINE')).toBeTruthy()
     expect(screen.getByText(/Belum ada data riwayat/)).toBeTruthy()
   })
+
+  it('menampilkan banner peringatan saat ada alert', () => {
+    mockUseTelemetry.mockReturnValue({
+      latest: {
+        device_id: 'esp32_water_01',
+        ts: 1,
+        seq: 1,
+        temperature: 27.5,
+        turbidity_ntu: 12,
+        ph: 7.2,
+        tds_ppm: 145,
+        status: 'UNFIT',
+      },
+      history: [],
+      state: 'online',
+      connected: true,
+      invalidCount: 0,
+      alerts: ['PH_OUT_OF_RANGE'],
+    })
+
+    render(<App />)
+
+    expect(screen.getByText('Peringatan:')).toBeTruthy()
+    expect(screen.getByText('pH di luar batas')).toBeTruthy()
+  })
 })

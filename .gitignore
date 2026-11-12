@@ -1,0 +1,22 @@
+# Secrets (gitignored per AGENTS.md / plan.md)
+firmware/include/secrets.h
+web-dashboard/.env
+
+# PlatformIO
+.pio/
+build/
+*.o
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

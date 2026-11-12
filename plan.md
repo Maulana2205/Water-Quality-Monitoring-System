@@ -154,12 +154,12 @@ Alert rule (unchanged from v1): pH outside [6.5, 8.5] **or** TDS > 1000 ppm → 
 ## 5. Implementation Phases
 
 ### Phase 1: Environment & Workspace Setup
-- [ ] Init git repo, `.gitignore` (`secrets.h`, `.env`, `.pio`, `node_modules`).
-- [ ] `firmware/`: PlatformIO project, envs `esp32dev` and `native`.
-- [ ] `web-dashboard/`: `npm create vite@latest web-dashboard -- --template react-ts`.
-- [ ] Web deps: `tailwindcss @tailwindcss/vite recharts mqtt zod lucide-react`.
-- [ ] Web dev deps: `vitest jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event @vitest/coverage-v8`.
-- [ ] Create `shared/thresholds.json`, `shared/telemetry.schema.json`, `shared/fixtures/*.json`.
+- [x] Init git repo, `.gitignore` (`secrets.h`, `.env`, `.pio`, `node_modules`).
+- [x] `firmware/`: PlatformIO project, envs `esp32dev` and `native`.
+- [x] `web-dashboard/`: `npm create vite@latest web-dashboard -- --template react-ts`.
+- [x] Web deps: `tailwindcss @tailwindcss/vite recharts mqtt zod lucide-react`.
+- [x] Web dev deps: `vitest jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event @vitest/coverage-v8`.
+- [x] Create `shared/thresholds.json`, `shared/telemetry.schema.json`, `shared/fixtures/*.json`.
 
 ### Phase 2: Firmware (`firmware/`) — logic first, hardware second
 
@@ -187,14 +187,14 @@ lib_ignore = OneWire, DallasTemperature, MQTT
 ```
 
 **2b. Pure logic (`lib/water_logic`)** — TDD: write the test, then the function.
-- [ ] `median_filter`: median of N=30 samples (sort copy; handles even N).
-- [ ] `sensor_math`:
+- [x] `median_filter`: median of N=30 samples (sort copy; handles even N).
+- [x] `sensor_math`:
   * `mv_to_sensor_mv(adc_mv, div)` with `DIV_TURB = 1.5`, `DIV_PH = 1.5` (TDS v1.0 outputs 0–2.3 V → no divider).
   * Temperature compensation: `f_comp = 1.0 + 0.02 × (T − 25.0)`; compensated voltage `V_c = V / f_comp`; then `TDS = (133.42·V_c³ − 255.86·V_c² + 857.39·V_c) × 0.5`.
   * pH two-point: `slope = (4.0 − 7.0) / (V_pH4 − V_pH7)`; `pH = 7.0 + slope × (V − V_pH7)`.
   * Turbidity → NTU via curve (start with DFRobot SEN0189 polynomial, then **replace with your own fit** from formazin/known standards; clamp at 0).
-- [ ] `classifier`: thresholds → `Status` enum + alert reasons.
-- [ ] `payload`: build telemetry/alert JSON (`JsonDocument`), no hardware dependency.
+- [x] `classifier`: thresholds → `Status` enum + alert reasons.
+- [x] `payload`: build telemetry/alert JSON (`JsonDocument`), no hardware dependency.
 
 **2c. Hardware layer (`src/`)**
 - [ ] `hal_sensors`: use `analogReadMilliVolts()` with 11 dB attenuation (uses eFuse calibration) instead of raw `analogRead`; DS18B20 with 12-bit conversion (~750 ms) — request conversion early and sample ADCs while it runs.

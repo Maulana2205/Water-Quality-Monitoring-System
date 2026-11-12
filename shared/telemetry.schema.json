@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Telemetry",
+  "type": "object",
+  "required": [
+    "device_id",
+    "ts",
+    "seq",
+    "temperature",
+    "turbidity_ntu",
+    "ph",
+    "tds_ppm",
+    "status"
+  ],
+  "properties": {
+    "device_id": { "type": "string" },
+    "ts": { "type": "integer" },
+    "seq": { "type": "integer" },
+    "temperature": { "type": "number" },
+    "turbidity_ntu": { "type": "number" },
+    "ph": { "type": "number" },
+    "tds_ppm": { "type": "number" },
+    "status": {
+      "type": "string",
+      "enum": ["DRINKABLE", "HYGIENE_OK", "UNFIT"]
+    },
+    "active_time_ms": { "type": "integer" },
+    "rssi": { "type": "integer" },
+    "fw": { "type": "string" },
+    "battery_mv": { "type": "integer" }
+  },
+  "additionalProperties": false
+}

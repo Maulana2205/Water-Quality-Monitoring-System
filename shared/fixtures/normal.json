@@ -1,0 +1,13 @@
+{
+  "device_id": "esp32_water_01",
+  "ts": 1767225600,
+  "seq": 128,
+  "temperature": 27.5,
+  "turbidity_ntu": 12.0,
+  "ph": 7.2,
+  "tds_ppm": 145.0,
+  "status": "HYGIENE_OK",
+  "active_time_ms": 18400,
+  "rssi": -61,
+  "fw": "0.2.0"
+}

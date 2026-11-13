@@ -295,6 +295,19 @@ Coverage target: ≥ 80% on `lib/` and `services/`.
 - [ ] Field test: confirm retained message shows data on first dashboard load; verify alert delivery (QoS 1) end-to-end.
 - [ ] Record results in a table (planned vs. measured) for the report.
 
+### Hasil pengukuran active window (50 siklus, `tools/active_time.txt`)
+
+| Metrik | Nilai | Target | Status |
+|--------|-------|--------|--------|
+| mean active_time | 10.94 s | ≤ 20 s | ✓ |
+| p95 active_time | 13.68 s | ≤ 20 s | ✓ |
+| min | 8.54 s | — | — |
+| median (p50) | 10.70 s | — | — |
+| max | 14.20 s | — | — |
+| Deep sleep per siklus | 30 menit | — | — |
+
+Aktif window nyata (p95 13.68 s) masih di bawah target ≤ 20 s, jadi budget energi di §2c masih valid. Sisa angka LCA (battery life, `P_sleep`) ditunggu pengukuran sleep current di Phase 6 sebelum diperbarui di `SustainabilityPanel`.
+
 ---
 
 ## 6. Recommended Skills (Claude)

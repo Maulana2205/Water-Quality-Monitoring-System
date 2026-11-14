@@ -1,0 +1,24 @@
+{
+  "name": "water-quality-monitoring-system",
+  "version": "1.0.0",
+  "description": "Kelompok 4",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Maulana2205/Water-Quality-Monitoring-System.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Maulana2205/Water-Quality-Monitoring-System/issues"
+  },
+  "homepage": "https://github.com/Maulana2205/Water-Quality-Monitoring-System#readme",
+  "dependencies": {
+    "mqtt": "^5.16.1"
+  }
+}

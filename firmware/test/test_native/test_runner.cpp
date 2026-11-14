@@ -12,9 +12,10 @@ extern void test_divider_1_5_undoes_ratio(void);
 extern void test_tds_compensation_factor(void);
 extern void test_tds_zero_volt_is_zero(void);
 extern void test_tds_increases_with_voltage(void);
-extern void test_ph_returns_7_at_vph7_and_4_at_vph4(void);
+extern void test_ph_returns_ph1_at_mv1_and_ph2_at_mv2(void);
 extern void test_ph_linear_in_between(void);
 extern void test_ph_guards_equal_calibration_voltages(void);
+extern void test_ph_uses_measured_calibration_data(void);
 extern void test_ntu_clamps_at_zero(void);
 extern void test_ntu_decreases_with_voltage(void);
 
@@ -47,9 +48,10 @@ int main(void) {
     RUN_TEST(test_tds_compensation_factor);
     RUN_TEST(test_tds_zero_volt_is_zero);
     RUN_TEST(test_tds_increases_with_voltage);
-    RUN_TEST(test_ph_returns_7_at_vph7_and_4_at_vph4);
+    RUN_TEST(test_ph_returns_ph1_at_mv1_and_ph2_at_mv2);
     RUN_TEST(test_ph_linear_in_between);
     RUN_TEST(test_ph_guards_equal_calibration_voltages);
+    RUN_TEST(test_ph_uses_measured_calibration_data);
     RUN_TEST(test_ntu_clamps_at_zero);
     RUN_TEST(test_ntu_decreases_with_voltage);
     RUN_TEST(test_ph_boundaries_inclusive);

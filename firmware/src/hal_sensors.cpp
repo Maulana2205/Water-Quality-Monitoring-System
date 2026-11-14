@@ -61,7 +61,9 @@ float read_turbidity_ntu(void) {
 float read_ph(void) {
   const float adc_mv = read_adc_mv_median(kPinPh);
   const float sensor_mv = mv_to_sensor_mv(adc_mv, DIV_PH);
-  return ph_from_voltage(sensor_mv, kVoltagePh7, kVoltagePh4);
+  return ph_from_voltage(sensor_mv,
+                         kPhCalPoint1_pH, kPhCalPoint1_mV,
+                         kPhCalPoint2_pH, kPhCalPoint2_mV);
 }
 
 float read_tds_ppm(float temperature_c) {

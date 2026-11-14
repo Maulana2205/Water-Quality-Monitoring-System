@@ -19,10 +19,13 @@ constexpr int kAdcAttenuation = 11;
 /// Jumlah sampel median filter per sensor per siklus.
 constexpr int kSamplesPerSensor = 30;
 
-/// pH two-point calibration voltages (mV). UKUR dengan buffer pH 7 dan pH 4,
-/// lalu ganti placeholder ini. 0 => guard returns neutral pH 7.0.
-constexpr float kVoltagePh7 = 0.0f;
-constexpr float kVoltagePh4 = 0.0f;
+/// pH two-point calibration: (pH value, voltage mV) pairs.
+/// UKUR dengan buffer standar, lalu ganti placeholder ini.
+/// mv1 == mv2 => guard returns ph1 (hindari div-by-zero).
+constexpr float kPhCalPoint1_pH = 6.86f;   // ukuran Anda: pH 6.86
+constexpr float kPhCalPoint1_mV = 1678.5f; // (1.678 + 1.679) / 2 V
+constexpr float kPhCalPoint2_pH = 4.00f;   // ukuran Anda: pH 4.0
+constexpr float kPhCalPoint2_mV = 1988.0f; // (1.987 + 1.989) / 2 V
 
 /** Inisialisasi ADC (11 dB), OneWire/DS18B20, dan gate pin.
  *  Kembalikan false jika inisialisasi gagal. */

@@ -19,11 +19,11 @@ float tds_compensation_factor(float temperature_c);
 /// Result clamped at >= 0.
 float tds_from_voltage(float voltage_mv, float temperature_c);
 
-/// Two-point pH calibration.
-///   slope = (4.0 - 7.0) / (v_ph4 - v_ph7)
-///   pH = 7.0 + slope * (voltage_mv - v_ph7)
-/// Guards v_ph4 == v_ph7 (returns neutral 7.0 instead of dividing by zero).
-float ph_from_voltage(float voltage_mv, float v_ph7, float v_ph4);
+/// Two-point pH calibration from arbitrary calibration points.
+///   slope = (ph2 - ph1) / (mv2 - mv1)
+///   pH = ph1 + slope * (voltage_mv - mv1)
+/// Guards mv2 == mv1 (returns ph1 instead of dividing by zero).
+float ph_from_voltage(float voltage_mv, float ph1, float mv1, float ph2, float mv2);
 
 /// Turbidity -> NTU via curve (SEN0189 starting fit; replace with formazin fit).
 /// Decreasing with voltage; clamped at >= 0.

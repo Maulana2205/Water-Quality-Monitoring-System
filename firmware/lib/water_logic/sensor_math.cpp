@@ -22,13 +22,13 @@ float tds_from_voltage(float voltage_mv, float temperature_c) {
     return tds < 0.0f ? 0.0f : tds;
 }
 
-float ph_from_voltage(float voltage_mv, float v_ph7, float v_ph4) {
-    const float denom = v_ph4 - v_ph7;
+float ph_from_voltage(float voltage_mv, float ph1, float mv1, float ph2, float mv2) {
+    const float denom = mv2 - mv1;
     if (denom == 0.0f) {
-        return 7.0f; // neutral fallback, avoid division by zero
+        return ph1; // fallback, avoid division by zero
     }
-    const float slope = (4.0f - 7.0f) / denom;
-    return 7.0f + slope * (voltage_mv - v_ph7);
+    const float slope = (ph2 - ph1) / denom;
+    return ph1 + slope * (voltage_mv - mv1);
 }
 
 float ntu_from_voltage(float voltage_mv) {

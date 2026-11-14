@@ -239,6 +239,7 @@ With the v1 figure of 0.444 W × 20 s = 8.88 J ≈ 2.47 mWh/cycle → ≈ **118 
   * `DeviceStatus` (last seen, RSSI, seq gap, firmware version). [x]
   * `SustainabilityPanel`: active time, duty cycle, estimated energy/day, estimated battery life (computed from the formula in Phase 2, with measured `P_sleep` as a config value).
   * Alert toast/banner for QoS 1 alerts. [x]
+  * Autentikasi MQTT dashboard (user/pass via VITE_MQTT_USER / VITE_MQTT_PASS di .env). [x]
 - [ ] Responsive layout (mobile-first, field use), light/dark mode.
 - [ ] (Stretch) Long-term storage: EMQX data integration to a free-tier time-series DB, so history survives beyond one browser.
 
@@ -341,6 +342,7 @@ There is no ESP32-specific skill in the available set; for firmware, rely on the
 - `DeviceStatus` sudah menampilkan RSSI, versi firmware, dan peringatan lompat seq dari telemetry terbaru.
 - `SustainabilityPanel` masih pakai asumsi (TDS rendah = hemat energi); angka LCA aktual ditunggu hasil pengukuran `P_sleep` (Phase 6).
 - Responsive grid sudah ada (mobile-first), tapi belum ada toggle dark mode terpisah (Tailwind `dark:` sudah aktif).
+- Autentikasi MQTT dashboard ditambahkan (mqttClient opsi username/password, useTelemetry + App baca VITE_MQTT_USER / VITE_MQTT_PASS). `.env.example` menyertakan placeholder; kredensial asli ada di `.env` (gitignored, tidak dicommit).
 
 Wiring:
     DS18B20  DATA -> GPIO4   (VCC 3V3, GND)

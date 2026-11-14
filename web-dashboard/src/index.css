@@ -1,1 +1,73 @@
 @import "tailwindcss";
+
+/* ponytail: design system dalam satu file CSS. Stack dikunci (Tailwind v4,
+ * lucide-react, Recharts) — tidak ada dependensi baru. Ceiling: jika desain
+ * tumbuh lebih besar dari satu file, pindahkan token ke config/tema terpisah. */
+
+@theme {
+  --color-water-50: #f0f9ff;
+  --color-water-100: #e0f2fe;
+  --color-water-500: #0ea5e9;
+  --color-water-600: #0284c7;
+  --color-water-900: #0c4a6e;
+
+  --color-surface-50: #f8fafc;
+  --color-surface-100: #f1f5f9;
+  --color-surface-900: #0f172a;
+
+  --radius-card: 1rem;
+  --radius-xl: 1.5rem;
+
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-card-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 10px 10px -5px rgb(0 0 0 / 0.04);
+  --shadow-glow: 0 0 24px rgb(14 165 234 / 0.35);
+  --shadow-glow-ok: 0 0 20px rgb(34 197 94 / 0.3);
+  --shadow-glow-warn: 0 0 20px rgb(245 158 11 / 0.3);
+  --shadow-glow-bad: 0 0 20px rgb(239 68 68 / 0.3);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-ok {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(34 197 94 / 0.6); }
+  50% { box-shadow: 0 0 0 8px rgb(34 197 94 / 0); }
+}
+
+@theme {
+  --animate-fade-in: fade-in 600ms ease-out both;
+  --animate-pulse-ok: pulse-ok 2s infinite;
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card {
+  @apply rounded-[var(--radius-card)] border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900 shadow-sm;
+  transition: transform 150ms var(--ease-smooth), box-shadow 150ms var(--ease-smooth),
+    border-color 150ms var(--ease-smooth);
+}
+.card:hover {
+  @apply shadow-md border-slate-300 dark:border-slate-600;
+  transform: translateY(-2px);
+}
+
+.status-dot {
+  @apply inline-block w-2 h-2 rounded-full;
+}
+
+.gauge-track {
+  @apply w-full h-1 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden;
+}
+.gauge-fill {
+  @apply h-full rounded-full;
+  transition: width 700ms var(--ease-smooth);
+  transition-timing-function: var(--ease-smooth);
+}
+
+.section-title {
+  @apply flex items-center gap-2 mb-3 border-b border-slate-200 dark:border-slate-700/60 pb-2;
+}
+.section-title h3 {
+  @apply text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider;
+}

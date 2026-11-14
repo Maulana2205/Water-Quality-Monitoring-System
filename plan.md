@@ -341,7 +341,7 @@ There is no ESP32-specific skill in the available set; for firmware, rely on the
 - Alert toast/banner QoS 1 sudah ditampilkan di `App.tsx` dari `useTelemetry.alerts` dengan label Indonesia.
 - `DeviceStatus` sudah menampilkan RSSI, versi firmware, dan peringatan lompat seq dari telemetry terbaru.
 - `SustainabilityPanel` masih pakai asumsi (TDS rendah = hemat energi); angka LCA aktual ditunggu hasil pengukuran `P_sleep` (Phase 6).
-- Responsive grid sudah ada (mobile-first), tapi belum ada toggle dark mode terpisah (Tailwind `dark:` sudah aktif).
+- Dashboard diredesain agar kurang generik dan lebih visual: header dengan status konektor broker, **setiap sensor dipisah ke kartu lebar dan terpisah** (grid 2 kolom di desktop, 1 kolom mobile; sebelumnya 4 kartu menumpuk per baris), ikon lucide + chip status + indikator kualitas (gauge bar), grafik riwayat dalam kartu, dan panel keberlanjutan; variabel desain (warna, animasi, utilitas kaca) di `src/index.css`. Stack tidak berubah (Tailwind v4, lucide-react, Recharts); grid responsif (1/2 kolom) dan varian `dark:` aktif. Semua 62 tes, `tsc --noEmit`, dan `vite build` hijau.
 - Autentikasi MQTT dashboard ditambahkan (mqttClient opsi username/password, useTelemetry + App baca VITE_MQTT_USER / VITE_MQTT_PASS). `.env.example` menyertakan placeholder; kredensial asli ada di `.env` (gitignored, tidak dicommit).
 
 Wiring:

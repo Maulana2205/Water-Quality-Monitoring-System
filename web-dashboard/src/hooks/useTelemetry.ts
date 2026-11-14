@@ -8,6 +8,8 @@ import { createMqttClient, type MqttClient } from '../services/mqttClient'
 export interface UseTelemetryOptions {
   url: string
   deviceId: string
+  username?: string
+  password?: string
 }
 
 export interface TelemetryView {
@@ -19,7 +21,12 @@ export interface TelemetryView {
   alerts: string[]
 }
 
-export function useTelemetry({ url, deviceId }: UseTelemetryOptions): TelemetryView {
+export function useTelemetry({
+  url,
+  deviceId,
+  username,
+  password,
+}: UseTelemetryOptions): TelemetryView {
   const [latest, setLatest] = useState<Telemetry | null>(null)
   const [state, setState] = useState<DeviceState>('offline')
   const [connected, setConnected] = useState(false)
@@ -68,7 +75,7 @@ export function useTelemetry({ url, deviceId }: UseTelemetryOptions): TelemetryV
   }, [deviceId])
 
   useEffect(() => {
-    const client = createMqttClient(url, handleMessage)
+    const client = createMqttClient(url, handleMessage, { username, password })
     clientRef.current = client
     client.connect()
     client.subscribe(`water_quality/${deviceId}/telemetry`)

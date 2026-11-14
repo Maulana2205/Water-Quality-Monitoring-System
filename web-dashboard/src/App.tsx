@@ -7,6 +7,8 @@ import { useTelemetry } from './hooks/useTelemetry'
 
 const URL = import.meta.env.VITE_MQTT_BROKER_URL ?? 'wss://broker:8084/mqtt'
 const DEVICE_ID = import.meta.env.VITE_DEVICE_ID ?? 'esp32_water_01'
+const MQTT_USER = import.meta.env.VITE_MQTT_USER ?? undefined
+const MQTT_PASS = import.meta.env.VITE_MQTT_PASS ?? undefined
 
 const ALERT_LABEL: Record<string, string> = {
   PH_OUT_OF_RANGE: 'pH di luar batas',
@@ -15,7 +17,12 @@ const ALERT_LABEL: Record<string, string> = {
 }
 
 export default function App() {
-  const view = useTelemetry({ url: URL, deviceId: DEVICE_ID })
+  const view = useTelemetry({
+    url: URL,
+    deviceId: DEVICE_ID,
+    username: MQTT_USER,
+    password: MQTT_PASS,
+  })
   const latest = view.latest
   const history = view.history
 

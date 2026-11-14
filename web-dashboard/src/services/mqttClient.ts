@@ -12,13 +12,19 @@ export interface MqttClient {
  * Auto-reconnect ditangani mqtt.js. Kredensial read-only dan tidak boleh
  * publish-capable (Vite env vars publik di bundle).
  */
-export function createMqttClient(url: string, onMessage?: (topic: string, payload: Buffer) => void): MqttClient {
+export function createMqttClient(
+  url: string,
+  onMessage?: (topic: string, payload: Buffer) => void,
+  opts?: { username?: string; password?: string },
+): MqttClient {
   let client: ReturnType<typeof mqtt.connect> | null = null
 
   const options: IClientOptions = {
     reconnectPeriod: 4000,
     keepalive: 60,
     clean: true,
+    ...(opts?.username ? { username: opts.username } : {}),
+    ...(opts?.password ? { password: opts.password } : {}),
   }
 
   function connect(): void {
@@ -29,8 +35,14 @@ export function createMqttClient(url: string, onMessage?: (topic: string, payloa
         onMessage(topic, payload)
       })
     }
-    client.on('error', () => {
-      // reconnect ditangani mqtt.js
+    client.on('error', (err: Error) => {
+      console.error('[mqtt] error:', err.message)
+    })
+    client.on('connect', () => {
+      console.log('[mqtt] connected')
+    })
+    client.on('reconnect', () => {
+      console.log('[mqtt] reconnecting...')
     })
   }
 

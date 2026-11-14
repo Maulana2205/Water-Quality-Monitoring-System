@@ -1,6 +1,7 @@
 # Secrets (gitignored per AGENTS.md / plan.md)
 firmware/include/secrets.h
 web-dashboard/.env
+tools/.env
 
 # PlatformIO
 .pio/

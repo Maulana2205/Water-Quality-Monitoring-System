@@ -10,7 +10,6 @@ function point(i: number): Telemetry {
     ts: 1767225600 + i,
     seq: i,
     temperature: 27 + i,
-    turbidity_ntu: 1 + i,
     ph: 7.0,
     tds_ppm: 100 + i,
     status: 'HYGIENE_OK',

@@ -19,7 +19,6 @@ const ALERT_LABEL: Record<string, string> = {
 
 const SENSORS = [
   { label: 'Suhu', key: 'temperature', unit: '°C' },
-  { label: 'Kekeruhan', key: 'turbidity_ntu', unit: 'NTU' },
   { label: 'pH', key: 'ph', unit: '' },
   { label: 'TDS', key: 'tds_ppm', unit: 'ppm' },
 ] as const

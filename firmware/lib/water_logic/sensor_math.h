@@ -4,7 +4,6 @@
 #include <cstddef>
 
 /// Voltage divider ratios (used in code, not in hardware layer raw output).
-constexpr float DIV_TURB = 1.5f;
 constexpr float DIV_PH = 1.5f;
 
 /// Undo voltage divider: sensor_mv = adc_mv * div.
@@ -24,9 +23,5 @@ float tds_from_voltage(float voltage_mv, float temperature_c);
 ///   pH = ph1 + slope * (voltage_mv - mv1)
 /// Guards mv2 == mv1 (returns ph1 instead of dividing by zero).
 float ph_from_voltage(float voltage_mv, float ph1, float mv1, float ph2, float mv2);
-
-/// Turbidity -> NTU via curve (SEN0189 starting fit; replace with formazin fit).
-/// Decreasing with voltage; clamped at >= 0.
-float ntu_from_voltage(float voltage_mv);
 
 #endif

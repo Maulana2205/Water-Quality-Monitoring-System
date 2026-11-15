@@ -55,14 +55,13 @@ void setup() {
   // --- 3. Sampling sensor ---
   // Mulai konversi DS18B20 (12-bit ~750 ms) dulu, sampling ADC sambil menunggu.
   float temperature = read_temperature_c();
-  float turbidity   = read_turbidity_ntu();
   float ph          = read_ph();
   float tds         = read_tds_ppm(temperature); // memerlukan suhu untuk kompensasi
   int battery_mv    = read_battery_mv();
 
   // --- 4. Klasifikasi kualitas air (mirror shared/thresholds.json) ---
   Thresholds thresholds; // lower-inclusive / upper-exclusive, pH keduanya inklusif
-  Classification cls = classify(ph, tds, turbidity, thresholds);
+  Classification cls = classify(ph, tds, thresholds);
   unsigned reasons   = alert_reasons(ph, tds, thresholds);
 
   // --- 5. Koneksi (WiFi + NTP + MQTT TLS dengan CA tertancap) ---
@@ -83,7 +82,7 @@ void setup() {
 
   {
     StaticJsonDocument<1024> doc;
-    if (build_telemetry(doc, DEVICE_ID, ts, g_seq, temperature, turbidity,
+    if (build_telemetry(doc, DEVICE_ID, ts, g_seq, temperature,
                         ph, tds, cls.status, active_time_ms, rssi,
                         FW_VERSION, battery_mv, true)) {
       if (!watchdog_expired(start_ms)) {

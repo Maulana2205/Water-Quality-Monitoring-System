@@ -5,7 +5,6 @@
 
 /// Pin mapping (ADC1 only — safe to use while WiFi is active).
 constexpr int kPinDs18b20 = 4;       // DS18B20 DATA (OneWire)
-constexpr int kPinTurbidity = 34;    // SEN0189 via 10k/20k divider -> ADC1
 constexpr int kPinPh = 35;           // pH 4502C Po via 10k/20k divider -> ADC1
 constexpr int kPinTds = 32;          // TDS v1.0 analog out -> ADC1 (no divider)
 constexpr int kPinBattery = 33;      // optional battery divider -> ADC1
@@ -39,9 +38,6 @@ void sensors_power_off(void);
 
 /** Baca suhu (°C) dari DS18B20. NAN jika sensor tidak terdeteksi. */
 float read_temperature_c(void);
-
-/** Baca kekeruhan (NTU) dari SEN0189 (median filter + divider + curve). */
-float read_turbidity_ntu(void);
 
 /** Baca pH dari pH 4502C (median filter + divider + kalibrasi dua titik). */
 float read_ph(void);

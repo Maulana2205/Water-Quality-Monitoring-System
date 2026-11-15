@@ -18,12 +18,6 @@
       "hygiene_ok": { "min": 0, "max": 1000, "min_inclusive": true, "max_inclusive": false },
       "unfit": { "min": 1000 }
     },
-    "turbidity_ntu": {
-      "unit": "NTU",
-      "drinkable": { "min": 0, "max": 3, "min_inclusive": true, "max_inclusive": false },
-      "hygiene_ok": { "min": 0, "max": 25, "min_inclusive": true, "max_inclusive": false },
-      "unfit": { "min": 25 }
-    },
     "temperature_c": {
       "unit": "°C",
       "drinkable": { "ambient_delta": 3 },

@@ -16,11 +16,9 @@ struct Thresholds {
     float ph_max = 8.5f;        // both inclusive
     float tds_drinkable_max = 300.0f;   // tds < max
     float tds_hygiene_max = 1000.0f;    // tds < max
-    float turb_drinkable_max = 3.0f;    // turb < max
-    float turb_hygiene_max = 25.0f;     // turb < max
 };
 
-Classification classify(float ph, float tds_ppm, float turbidity_ntu,
+Classification classify(float ph, float tds_ppm,
                         const Thresholds& t);
 
 // Alert rule: pH outside [ph_min, ph_max] OR tds > tds_hygiene_max (1000).

@@ -2,8 +2,8 @@
 
 ## 1. Project Overview & Goals
 
-* **Objective:** ESP32 IoT system measuring Temperature (°C), Turbidity (NTU), pH, and TDS (ppm), classifying water as *drinkable / hygiene-only / unfit*, with a real-time web dashboard.
-* **Hardware:** ESP32 Dev Module, DS18B20 (GPIO4), SEN0189 Turbidity (GPIO34), pH 4502C (GPIO35), TDS Meter v1.0 (GPIO32). All analog pins are **ADC1** (safe to use while WiFi is on; never use ADC2 pins).
+* **Objective:** ESP32 IoT system measuring Temperature (°C), pH, and TDS (ppm), classifying water as *drinkable / hygiene-only / unfit*, with a real-time web dashboard.
+* **Hardware:** ESP32 Dev Module, DS18B20 (GPIO4), pH 4502C (GPIO35), TDS Meter v1.0 (GPIO32). All analog pins are **ADC1** (safe to use while WiFi is on; never use ADC2 pins).
 * **Sustainability / LCA Strategy:**
   * Active window target ≤ 20 s per cycle, then Deep Sleep 30 min (48 cycles/day).
   * Sensor power gating during sleep (see §5), otherwise sleep current dominates the energy budget.
@@ -42,7 +42,7 @@ water-quality-monitoring/
 │   ├── lib/
 │   │   └── water_logic/             # PURE C++, no Arduino.h -> testable on host
 │   │       ├── median_filter.{h,cpp}
-│   │       ├── sensor_math.{h,cpp}  # divider, pH cal, TDS comp, NTU curve
+│   │       ├── sensor_math.{h,cpp}  # divider, pH cal, TDS comp
 │   │       ├── classifier.{h,cpp}   # thresholds -> status + alert flags
 │   │       └── payload.{h,cpp}      # ArduinoJson payload builder
 │   ├── src/
@@ -109,7 +109,7 @@ water-quality-monitoring/
   "ts": 1767225600,
   "seq": 128,
   "temperature": 27.5,
-  "turbidity_ntu": 12.0,
+
   "ph": 7.2,
   "tds_ppm": 145.0,
   "status": "HYGIENE_OK",
@@ -136,7 +136,7 @@ water-quality-monitoring/
 |-----------|-----------|------------|-------|
 | pH | 6.5 – 8.5 | 6.5 – 8.5 | outside range |
 | TDS (ppm) | < 300 | < 1000 | ≥ 1000 |
-| Turbidity (NTU) | < 3 | < 25 | ≥ 25 |
+
 | Temperature | within ±3 °C of ambient air | — | — |
 
 > ⚠️ Verify these values against the regulation text you cite in the report (Permenkes No. 2/2023: drinking water vs. hygiene & sanitation water) before freezing the file. Boundary rules: lower bound inclusive, upper bound exclusive, except pH where both bounds are inclusive. Tests lock this behavior in.
@@ -189,16 +189,16 @@ lib_ignore = OneWire, DallasTemperature, MQTT
 **2b. Pure logic (`lib/water_logic`)** — TDD: write the test, then the function.
 - [x] `median_filter`: median of N=30 samples (sort copy; handles even N).
 - [x] `sensor_math`:
-  * `mv_to_sensor_mv(adc_mv, div)` with `DIV_TURB = 1.5`, `DIV_PH = 1.5` (TDS v1.0 outputs 0–2.3 V → no divider).
+  * `mv_to_sensor_mv(adc_mv, div)` with `DIV_PH = 1.5` (TDS v1.0 outputs 0–2.3 V → no divider).
   * Temperature compensation: `f_comp = 1.0 + 0.02 × (T − 25.0)`; compensated voltage `V_c = V / f_comp`; then `TDS = (133.42·V_c³ − 255.86·V_c² + 857.39·V_c) × 0.5`.
   * pH two-point: `slope = (4.0 − 7.0) / (V_pH4 − V_pH7)`; `pH = 7.0 + slope × (V − V_pH7)`.
-  * Turbidity → NTU via curve (start with DFRobot SEN0189 polynomial, then **replace with your own fit** from formazin/known standards; clamp at 0).
+
 - [x] `classifier`: thresholds → `Status` enum + alert reasons.
 - [x] `payload`: build telemetry/alert JSON (`JsonDocument`), no hardware dependency.
 
 **2c. Hardware layer (`src/`)**
 - [ ] `hal_sensors`: use `analogReadMilliVolts()` with 11 dB attenuation (uses eFuse calibration) instead of raw `analogRead`; DS18B20 with 12-bit conversion (~750 ms) — request conversion early and sample ADCs while it runs.
-- [ ] Sensor power gating: a GPIO-driven load switch/MOSFET for the pH, TDS, turbidity boards; allow warm-up (≈ 1–3 s) before sampling.
+- [ ] Sensor power gating: a GPIO-driven load switch/MOSFET for the pH, TDS boards; allow warm-up (≈ 1–3 s) before sampling.
 - [ ] `net`: WiFi connect with timeout; cache channel/BSSID in `RTC_DATA_ATTR` to speed reconnects; NTP sync (store in RTC); TLS with pinned CA; MQTT connect.
 - [ ] `main.cpp` flow: wake → power sensors → sample → classify → connect → publish telemetry (retain) → if alert, publish QoS 1 **and wait for PUBACK** → `client.disconnect()` → power off sensors → `esp_deep_sleep_start()`.
 - [ ] Hard timeout watchdog: if the active window exceeds 30 s (WiFi/broker down), skip publish and sleep anyway.
@@ -253,8 +253,8 @@ With the v1 figure of 0.444 W × 20 s = 8.88 J ≈ 2.47 mWh/cycle → ≈ **118 
 | `sensor_math` divider | 1.5 ratio: 2000 mV ADC → 3000 mV sensor; 0 mV |
 | TDS compensation | T=25 → factor 1.0; T=30 → 1.10; T=20 → 0.90; TDS(0 V)=0; monotonic increase with V |
 | pH calibration | returns 7.0 at V_pH7, 4.0 at V_pH4; linear in between; guards `V_pH4 == V_pH7` (div by zero) |
-| NTU curve | clamps at ≥ 0; decreasing with voltage |
-| `classifier` | boundaries: pH 6.5 / 8.5 inclusive, 6.49 / 8.51 UNFIT; TDS 299/300/999/1000; NTU 2.9/3/24.9/25; worst-parameter-wins |
+
+| `classifier` | boundaries: pH 6.5 / 8.5 inclusive, 6.49 / 8.51 UNFIT; TDS 299/300/999/1000; worst-parameter-wins |
 | alert rule | pH out of range → alert; TDS > 1000 → alert; both → two reasons; none → no alert |
 | `payload` | all required keys present; types correct; matches `telemetry.schema.json` fixtures; NaN/inf sensor value handled (omit or error flag) |
 
@@ -292,7 +292,7 @@ Coverage target: ≥ 80% on `lib/` and `services/`.
 - [ ] Measure sleep current and compute real battery life; update the Sustainability panel constants.
 - [ ] Verify TLS stability: ≥ 100 consecutive cycles without a failed publish; review reconnect behavior when WiFi is down.
 - [ ] pH calibration with pH 7.0 and 4.0 buffers (add a pH 10.0 check point), temperature-compensated; report MAE against a reference meter.
-- [ ] TDS check against a reference solution (e.g., 342 ppm NaCl) and a handheld meter; turbidity against known standards.
+- [ ] TDS check against a reference solution (e.g., 342 ppm NaCl) and a handheld meter.
 - [ ] Field test: confirm retained message shows data on first dashboard load; verify alert delivery (QoS 1) end-to-end.
 - [ ] Record results in a table (planned vs. measured) for the report.
 
@@ -346,6 +346,5 @@ There is no ESP32-specific skill in the available set; for firmware, rely on the
 
 Wiring:
     DS18B20  DATA -> GPIO4   (VCC 3V3, GND)
-    SEN0189  A    -> pembagi 10k/20k -> GPIO34  (VCC 5V, GND)
     pH 4502C Po   -> pembagi 10k/20k -> GPIO35  (V+ 5V, GND)
     TDS v1.0 A    -> GPIO32  (VCC 3V3, GND)

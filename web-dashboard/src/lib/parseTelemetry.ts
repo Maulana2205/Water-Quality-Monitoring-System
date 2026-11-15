@@ -7,7 +7,6 @@ export interface Telemetry {
   ts: number
   seq: number
   temperature: number
-  turbidity_ntu: number
   ph: number
   tds_ppm: number
   status: TelemetryStatus
@@ -32,7 +31,6 @@ const telemetrySchema = z
     ts: z.number().int(),
     seq: z.number().int(),
     temperature: z.number().finite(),
-    turbidity_ntu: z.number().finite(),
     ph: z.number().finite(),
     tds_ppm: z.number().finite(),
     status: z.enum(['DRINKABLE', 'HYGIENE_OK', 'UNFIT']),

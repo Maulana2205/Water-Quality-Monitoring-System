@@ -31,10 +31,3 @@ float ph_from_voltage(float voltage_mv, float ph1, float mv1, float ph2, float m
     return ph1 + slope * (voltage_mv - mv1);
 }
 
-float ntu_from_voltage(float voltage_mv) {
-    const float v = voltage_mv / 1000.0f;
-    // SEN0189 starting fit (placeholder -> replace with formazin/standards fit).
-    // Decreasing with voltage; clamp at >= 0.
-    float ntu = 1000.0f * (1.0f - v);
-    return ntu < 0.0f ? 0.0f : ntu;
-}

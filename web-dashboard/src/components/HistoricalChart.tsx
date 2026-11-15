@@ -19,7 +19,6 @@ type ThresholdDoc = {
   parameters: {
     ph: { drinkable: { min: number; max: number }; hygiene_ok: { max: number } }
     tds_ppm: { drinkable: { max: number }; hygiene_ok: { max: number } }
-    turbidity_ntu: { drinkable: { max: number }; hygiene_ok: { max: number } }
   }
 }
 
@@ -27,19 +26,18 @@ const t = thresholds as ThresholdDoc
 
 const COLORS = {
   temperature: '#22c3ee', // cyan / biru
-  turbidity_ntu: '#10b981', // emerald / hijau
   ph: '#f59e0b', // amber / oranye
   tds_ppm: '#ef4444', // red / coral
 }
 
 const PARAM_UNIT: Record<string, string> = {
   temperature: '°C',
-  turbidity_ntu: 'NTU',
   ph: '',
   tds_ppm: 'ppm',
 }
 
 type Range = '1j' | '6j' | '12j' | '24j'
+
 
 const RANGES: Array<{ value: Range; label: string }> = [
   { value: '1j', label: '1 Jam' },
@@ -59,18 +57,6 @@ const REF_LINES: Array<{
 }> = [
   { yAxisId: 'ph', y: t.parameters.ph.drinkable.min, label: 'pH 6.5', color: '#f59e0b' },
   { yAxisId: 'ph', y: t.parameters.ph.drinkable.max, label: 'pH 8.5', color: '#f59e0b' },
-  {
-    yAxisId: 'turbidity_ntu',
-    y: t.parameters.turbidity_ntu.drinkable.max,
-    label: '3 NTU',
-    color: '#10b981',
-  },
-  {
-    yAxisId: 'turbidity_ntu',
-    y: t.parameters.turbidity_ntu.hygiene_ok.max,
-    label: '25 NTU',
-    color: '#047857',
-  },
   {
     yAxisId: 'tds_ppm',
     y: t.parameters.tds_ppm.drinkable.max,
@@ -95,7 +81,7 @@ function formatWib(tsSeconds: number): string {
 
 function paramStatus(
   value: number,
-  key: 'temperature' | 'turbidity_ntu' | 'ph' | 'tds_ppm',
+  key: 'temperature' | 'ph' | 'tds_ppm',
 ): 'DRINKABLE' | 'HYGIENE_OK' | 'UNFIT' | 'NORMAL' {
   if (key === 'ph') {
     return value >= 6.5 && value <= 8.5 ? 'DRINKABLE' : 'UNFIT'
@@ -173,7 +159,7 @@ function MetricItem({
   label: string
   value: number | null | undefined
   unit: string
-  paramKey: 'temperature' | 'turbidity_ntu' | 'ph' | 'tds_ppm'
+  paramKey: 'temperature' | 'ph' | 'tds_ppm'
   latest: Telemetry | null
 }) {
   const status = latest ? paramStatus(latest[paramKey], paramKey) : 'NORMAL'
@@ -264,13 +250,6 @@ export function HistoricalChart({ data }: { data: Telemetry[] }) {
       {latest && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 px-5 py-4 border-b border-slate-200 dark:border-slate-700/60">
           <MetricItem
-            label="Kekeruhan"
-            value={latest.turbidity_ntu}
-            unit="NTU"
-            paramKey="turbidity_ntu"
-            latest={latest}
-          />
-          <MetricItem
             label="Suhu"
             value={latest.temperature}
             unit="°C"
@@ -336,18 +315,6 @@ export function HistoricalChart({ data }: { data: Telemetry[] }) {
               domain={['auto', 'auto']}
             />
             <YAxis
-              yAxisId="turbidity_ntu"
-              type="number"
-              orientation="left"
-              offset={48}
-              width={44}
-              axisLine={false}
-              tickLine={false}
-              tickFormatter={(v: number) => v.toFixed(1)}
-              allowDecimals
-              domain={['auto', 'auto']}
-            />
-            <YAxis
               yAxisId="ph"
               type="number"
               orientation="right"
@@ -397,15 +364,6 @@ export function HistoricalChart({ data }: { data: Telemetry[] }) {
               strokeWidth={2}
               dot={{ r: 3.5, fill: '#ffffff', stroke: COLORS.temperature, strokeWidth: 2 }}
               name="Suhu (°C)"
-            />
-            <Line
-              yAxisId="turbidity_ntu"
-              type="monotone"
-              dataKey="turbidity_ntu"
-              stroke={COLORS.turbidity_ntu}
-              strokeWidth={2}
-              dot={{ r: 3.5, fill: '#ffffff', stroke: COLORS.turbidity_ntu, strokeWidth: 2 }}
-              name="Kekeruhan (NTU)"
             />
             <Line
               yAxisId="ph"

@@ -15,7 +15,6 @@ bool sensors_init(void) {
   digitalWrite(kPinSensorGate, LOW);
 
   analogSetAttenuation(static_cast<adc_attenuation_t>(kAdcAttenuation));
-  pinMode(kPinTurbidity, INPUT);
   pinMode(kPinPh, INPUT);
   pinMode(kPinTds, INPUT);
   pinMode(kPinBattery, INPUT);
@@ -27,7 +26,7 @@ bool sensors_init(void) {
 
 void sensors_power_on(void) {
   digitalWrite(kPinSensorGate, HIGH);
-  // Warm-up sensor board (pH/TDS/turbidity) sebelum sampling.
+  // Warm-up sensor board (pH/TDS) sebelum sampling.
   delay(2000);
 }
 
@@ -50,12 +49,6 @@ float read_temperature_c(void) {
     return NAN;
   }
   return c;
-}
-
-float read_turbidity_ntu(void) {
-  const float adc_mv = read_adc_mv_median(kPinTurbidity);
-  const float sensor_mv = mv_to_sensor_mv(adc_mv, DIV_TURB);
-  return ntu_from_voltage(sensor_mv);
 }
 
 float read_ph(void) {

@@ -55,12 +55,11 @@ const RETAIN = process.env.SIM_RETAIN !== 'false'
 
 const now = () => Math.floor(Date.now() / 1000)
 
-const telemetry = ({ seq, status, ph, tds_ppm, turbidity_ntu, temperature, ts = now(), active_time_ms = 11000, rssi = -60, fw = '0.2.0', battery_mv }) => ({
+const telemetry = ({ seq, status, ph, tds_ppm, temperature, ts = now(), active_time_ms = 11000, rssi = -60, fw = '0.2.0', battery_mv }) => ({
   device_id: DEVICE_ID,
   ts,
   seq,
   temperature,
-  turbidity_ntu,
   ph,
   tds_ppm,
   status,
@@ -84,7 +83,6 @@ const SCENARIOS = {
       status: 'DRINKABLE',
       ph: 7.2,
       tds_ppm: 145,
-      turbidity_ntu: 2.0,
       temperature: 27.5,
     })
     return [{ topic: `water_quality/${DEVICE_ID}/telemetry`, payload: tm, retain: true }]
@@ -96,7 +94,6 @@ const SCENARIOS = {
       status: 'UNFIT',
       ph: 7.0,
       tds_ppm: 1200,
-      turbidity_ntu: 2.0,
       temperature: 27.5,
     })
     const al = alert({ reasons: ['TDS_GT_MAX'], values: { tds_ppm: 1200 } })
@@ -112,7 +109,6 @@ const SCENARIOS = {
       status: 'UNFIT',
       ph: 9.2,
       tds_ppm: 200,
-      turbidity_ntu: 2.0,
       temperature: 27.5,
     })
     const al = alert({ reasons: ['PH_OUT_OF_RANGE'], values: { ph: 9.2 } })
@@ -129,7 +125,6 @@ const SCENARIOS = {
       status: 'HYGIENE_OK',
       ph: 7.5,
       tds_ppm: 400,
-      turbidity_ntu: 10.0,
       temperature: 27.5,
     })
     return [{ topic: `water_quality/${DEVICE_ID}/telemetry`, payload: tm, retain: true }]

@@ -1,6 +1,6 @@
 import type { TelemetryStatus } from '../lib/parseTelemetry'
 import type { LucideProps } from 'lucide-react'
-import { Thermometer, Droplets, FlaskConical, Gauge } from 'lucide-react'
+import { Thermometer, FlaskConical, Gauge } from 'lucide-react'
 
 const STATUS_COLOR: Record<TelemetryStatus, string> = {
   DRINKABLE: 'text-green-700 dark:text-green-400',
@@ -30,7 +30,6 @@ const COLOR_MISSING = 'text-slate-500 dark:text-slate-400'
 
 const ICON: Record<string, React.ComponentType<LucideProps>> = {
   Suhu: Thermometer,
-  Kekeruhan: Droplets,
   pH: FlaskConical,
   TDS: Gauge,
 }

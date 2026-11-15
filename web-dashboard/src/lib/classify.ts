@@ -13,7 +13,6 @@ interface ThresholdsDoc {
   parameters: {
     ph: { drinkable: Range; hygiene_ok: Range }
     tds_ppm: { drinkable: Range; hygiene_ok: Range }
-    turbidity_ntu: { drinkable: Range; hygiene_ok: Range }
   }
 }
 
@@ -55,18 +54,13 @@ function parameterStatus(value: number, drinkableMax: number, hygieneMax: number
  * lower bound inclusive, upper bound exclusive, except pH where both bounds
  * are inclusive. Worst parameter wins.
  */
-export function classify(ph: number, tds_ppm: number, turbidity_ntu: number): Status {
+export function classify(ph: number, tds_ppm: number): Status {
   const phStatus = inRange(ph, t.parameters.ph.drinkable) ? 'DRINKABLE' : 'UNFIT'
   const tdsStatus = parameterStatus(
     tds_ppm,
     t.parameters.tds_ppm.drinkable.max,
     t.parameters.tds_ppm.hygiene_ok.max,
   )
-  const turbStatus = parameterStatus(
-    turbidity_ntu,
-    t.parameters.turbidity_ntu.drinkable.max,
-    t.parameters.turbidity_ntu.hygiene_ok.max,
-  )
 
-  return worse(worse(phStatus, tdsStatus), turbStatus)
+  return worse(phStatus, tdsStatus)
 }

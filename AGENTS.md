@@ -56,7 +56,7 @@ If a command fails because a tool is missing (for example no host `g++` for `nat
 
 ## Architecture rules
 
-* **Firmware logic is pure.** Median filter, voltage conversion, pH calibration, TDS compensation, NTU conversion, classification, and payload building go in `lib/water_logic` with no Arduino or ESP-IDF headers. `src/` only does I/O and calls into the library.
+* **Firmware logic is pure.** Median filter, voltage conversion, pH calibration, TDS compensation, classification, and payload building go in `lib/water_logic` with no Arduino or ESP-IDF headers. `src/` only does I/O and calls into the library.
 * **Single source of truth for thresholds:** `shared/thresholds.json`. Never hardcode threshold numbers in firmware or web code. The firmware may generate a header from the JSON at build time or mirror it, but a test must fail if they drift.
 * **Payload contract:** `shared/telemetry.schema.json` plus `shared/fixtures/*.json`. Any change to the payload requires updating the schema, fixtures, firmware test, and web test in the same change.
 * Status values are enums: `DRINKABLE`, `HYGIENE_OK`, `UNFIT`. Indonesian labels ("LAYAK KONSUMSI", "LAYAK CUCI/MANDI", "TIDAK LAYAK") exist only in the web UI.
@@ -65,7 +65,7 @@ If a command fails because a tool is missing (for example no host `g++` for `nat
 ## Firmware rules
 
 * Use ADC1 pins only (GPIO32, 34, 35). Never ADC2 while WiFi is active.
-* Read ADC with `analogReadMilliVolts()` at 11 dB attenuation. Apply voltage divider ratios (`DIV_TURB = 1.5`, `DIV_PH = 1.5`) in code, not in the hardware layer's raw output.
+* Read ADC with `analogReadMilliVolts()` at 11 dB attenuation. Apply voltage divider ratio (`DIV_PH = 1.5`) in code, not in the hardware layer's raw output.
 * Telemetry topic `water_quality/<device_id>/telemetry`: QoS 0, `retain=true`. Alerts on `water_quality/<device_id>/alert`: QoS 1, and **wait for PUBACK before sleeping**.
 * Always disconnect MQTT cleanly, power down sensors via the gate pin, then call `esp_deep_sleep_start()`.
 * Implement a watchdog: if the active window exceeds 30 s, skip publishing and go to sleep.

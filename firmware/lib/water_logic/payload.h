@@ -13,14 +13,14 @@
 // battery_mv only written when has_battery is true.
 template <typename TDocument>
 bool build_telemetry(TDocument& doc, const char* device_id, uint32_t ts,
-                     uint32_t seq, float temperature, float turbidity_ntu,
+                     uint32_t seq, float temperature,
                      float ph, float tds_ppm, Status status,
                      uint32_t active_time_ms, int rssi, const char* fw,
                      int battery_mv, bool has_battery) {
     if (device_id == nullptr || fw == nullptr) {
         return false;
     }
-    if (!std::isfinite(temperature) || !std::isfinite(turbidity_ntu) ||
+    if (!std::isfinite(temperature) ||
         !std::isfinite(ph) || !std::isfinite(tds_ppm)) {
         return false;
     }
@@ -29,7 +29,6 @@ bool build_telemetry(TDocument& doc, const char* device_id, uint32_t ts,
     doc["ts"] = ts;
     doc["seq"] = seq;
     doc["temperature"] = temperature;
-    doc["turbidity_ntu"] = turbidity_ntu;
     doc["ph"] = ph;
     doc["tds_ppm"] = tds_ppm;
     switch (status) {

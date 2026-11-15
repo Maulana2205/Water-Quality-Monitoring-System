@@ -3,7 +3,6 @@
   "ts": 1767225720,
   "seq": 130,
   "temperature": 26.5,
-  "turbidity_ntu": 4.0,
   "ph": 9.1,
   "tds_ppm": 200.0,
   "status": "UNFIT",

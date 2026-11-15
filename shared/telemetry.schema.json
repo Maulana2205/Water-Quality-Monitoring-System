@@ -7,7 +7,6 @@
     "ts",
     "seq",
     "temperature",
-    "turbidity_ntu",
     "ph",
     "tds_ppm",
     "status"
@@ -17,7 +16,6 @@
     "ts": { "type": "integer" },
     "seq": { "type": "integer" },
     "temperature": { "type": "number" },
-    "turbidity_ntu": { "type": "number" },
     "ph": { "type": "number" },
     "tds_ppm": { "type": "number" },
     "status": {

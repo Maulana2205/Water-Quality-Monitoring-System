@@ -2,7 +2,6 @@
 #include "sensor_math.h"
 
 void test_divider_1_5_undoes_ratio(void) {
-    TEST_ASSERT_EQUAL_FLOAT(3000.0f, mv_to_sensor_mv(2000.0f, DIV_TURB));
     TEST_ASSERT_EQUAL_FLOAT(0.0f, mv_to_sensor_mv(0.0f, DIV_PH));
 }
 
@@ -58,19 +57,6 @@ void test_ph_uses_measured_calibration_data(void) {
     TEST_ASSERT_EQUAL_FLOAT(ph2, ph_from_voltage(mv2, ph1, mv1, ph2, mv2));
     // titik tengah tegangan -> titik tengah pH
     TEST_ASSERT_EQUAL_FLOAT(5.43f, ph_from_voltage(1833.25f, ph1, mv1, ph2, mv2));
-}
-
-void test_ntu_clamps_at_zero(void) {
-    // High voltage -> curve goes negative -> clamped to 0
-    TEST_ASSERT_EQUAL_FLOAT(0.0f, ntu_from_voltage(3300.0f));
-}
-
-void test_ntu_decreases_with_voltage(void) {
-    float n1 = ntu_from_voltage(0.0f);
-    float n2 = ntu_from_voltage(1000.0f);
-    float n3 = ntu_from_voltage(2000.0f);
-    TEST_ASSERT_TRUE(n1 >= n2);
-    TEST_ASSERT_TRUE(n2 >= n3);
 }
 
 

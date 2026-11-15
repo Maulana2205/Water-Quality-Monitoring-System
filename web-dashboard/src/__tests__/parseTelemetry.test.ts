@@ -7,7 +7,6 @@ describe('parseTelemetry', () => {
     ts: 1767225600,
     seq: 128,
     temperature: 27.5,
-    turbidity_ntu: 12.0,
     ph: 7.2,
     tds_ppm: 145.0,
     status: 'HYGIENE_OK' as const,

@@ -8,7 +8,6 @@ static void check_telemetry_keys(StaticJsonDocument<512>& doc) {
     TEST_ASSERT_TRUE(doc.containsKey("ts"));
     TEST_ASSERT_TRUE(doc.containsKey("seq"));
     TEST_ASSERT_TRUE(doc.containsKey("temperature"));
-    TEST_ASSERT_TRUE(doc.containsKey("turbidity_ntu"));
     TEST_ASSERT_TRUE(doc.containsKey("ph"));
     TEST_ASSERT_TRUE(doc.containsKey("tds_ppm"));
     TEST_ASSERT_TRUE(doc.containsKey("status"));
@@ -20,7 +19,7 @@ static void check_telemetry_keys(StaticJsonDocument<512>& doc) {
 void test_build_telemetry_all_keys_and_types(void) {
     StaticJsonDocument<512> doc;
     bool ok = build_telemetry(doc, "esp32_water_01", 1767225600UL, 128,
-                              27.5f, 12.0f, 7.2f, 145.0f, Status::HYGIENE_OK,
+                              27.5f, 7.2f, 145.0f, Status::HYGIENE_OK,
                               18400UL, -61, "0.2.0", -1, false);
     TEST_ASSERT_TRUE(ok);
     check_telemetry_keys(doc);
@@ -28,7 +27,6 @@ void test_build_telemetry_all_keys_and_types(void) {
     TEST_ASSERT_EQUAL(1767225600UL, doc["ts"].as<unsigned long>());
     TEST_ASSERT_EQUAL(128U, doc["seq"].as<unsigned int>());
     TEST_ASSERT_EQUAL_FLOAT(27.5f, doc["temperature"].as<float>());
-    TEST_ASSERT_EQUAL_FLOAT(12.0f, doc["turbidity_ntu"].as<float>());
     TEST_ASSERT_EQUAL_FLOAT(7.2f, doc["ph"].as<float>());
     TEST_ASSERT_EQUAL_FLOAT(145.0f, doc["tds_ppm"].as<float>());
     TEST_ASSERT_EQUAL_STRING("HYGIENE_OK", doc["status"].as<const char*>());
@@ -42,7 +40,7 @@ void test_build_telemetry_all_keys_and_types(void) {
 void test_build_telemetry_includes_battery_when_provided(void) {
     StaticJsonDocument<512> doc;
     bool ok = build_telemetry(doc, "esp32_water_01", 1767225600UL, 128,
-                              27.5f, 12.0f, 7.2f, 145.0f, Status::DRINKABLE,
+                              27.5f, 7.2f, 145.0f, Status::DRINKABLE,
                               15000UL, -55, "0.2.0", 3700, true);
     TEST_ASSERT_TRUE(ok);
     TEST_ASSERT_EQUAL(3700, doc["battery_mv"].as<int>());
@@ -51,7 +49,7 @@ void test_build_telemetry_includes_battery_when_provided(void) {
 void test_build_telemetry_rejects_nan(void) {
     StaticJsonDocument<512> doc;
     bool ok = build_telemetry(doc, "esp32_water_01", 1767225600UL, 128,
-                              NAN, 12.0f, 7.2f, 145.0f, Status::HYGIENE_OK,
+                              NAN, 7.2f, 145.0f, Status::HYGIENE_OK,
                               15000UL, -55, "0.2.0", -1, false);
     TEST_ASSERT_FALSE(ok);
 }
@@ -59,7 +57,7 @@ void test_build_telemetry_rejects_nan(void) {
 void test_build_telemetry_rejects_inf(void) {
     StaticJsonDocument<512> doc;
     bool ok = build_telemetry(doc, "esp32_water_01", 1767225600UL, 128,
-                              27.5f, 12.0f, INFINITY, 145.0f,
+                              27.5f, INFINITY, 145.0f,
                               Status::HYGIENE_OK, 15000UL, -55, "0.2.0", -1, false);
     TEST_ASSERT_FALSE(ok);
 }

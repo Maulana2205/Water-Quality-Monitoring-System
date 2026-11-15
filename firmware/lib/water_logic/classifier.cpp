@@ -21,7 +21,7 @@ Status worst(Status a, Status b) {
 
 } // namespace
 
-Classification classify(float ph, float tds_ppm, float turbidity_ntu,
+Classification classify(float ph, float tds_ppm,
                         const Thresholds& t) {
     // pH: both bounds inclusive -> DRINKABLE inside, UNFIT outside.
     Status ph_status = (ph >= t.ph_min && ph <= t.ph_max)
@@ -30,11 +30,8 @@ Classification classify(float ph, float tds_ppm, float turbidity_ntu,
 
     Status tds_status = parameter_status(tds_ppm, t.tds_drinkable_max,
                                          t.tds_hygiene_max);
-    Status turb_status = parameter_status(turbidity_ntu, t.turb_drinkable_max,
-                                          t.turb_hygiene_max);
 
     Status s = worst(ph_status, tds_status);
-    s = worst(s, turb_status);
     return Classification{s};
 }
 

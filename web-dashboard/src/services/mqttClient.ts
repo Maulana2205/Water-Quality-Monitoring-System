@@ -15,7 +15,12 @@ export interface MqttClient {
 export function createMqttClient(
   url: string,
   onMessage?: (topic: string, payload: Buffer) => void,
-  opts?: { username?: string; password?: string },
+  opts?: {
+    username?: string
+    password?: string
+    onConnect?: () => void
+    onDisconnect?: () => void
+  },
 ): MqttClient {
   let client: ReturnType<typeof mqtt.connect> | null = null
 
@@ -37,12 +42,17 @@ export function createMqttClient(
     }
     client.on('error', (err: Error) => {
       console.error('[mqtt] error:', err.message)
+      opts?.onDisconnect?.()
     })
     client.on('connect', () => {
       console.log('[mqtt] connected')
+      opts?.onConnect?.()
     })
     client.on('reconnect', () => {
       console.log('[mqtt] reconnecting...')
+    })
+    client.on('close', () => {
+      opts?.onDisconnect?.()
     })
   }
 

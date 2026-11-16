@@ -75,7 +75,12 @@ export function useTelemetry({
   }, [deviceId])
 
   useEffect(() => {
-    const client = createMqttClient(url, handleMessage, { username, password })
+    const client = createMqttClient(url, handleMessage, {
+      username,
+      password,
+      onConnect: () => setConnected(true),
+      onDisconnect: () => setConnected(false),
+    })
     clientRef.current = client
     client.connect()
     client.subscribe(`water_quality/${deviceId}/telemetry`)
@@ -83,6 +88,7 @@ export function useTelemetry({
     return () => {
       client.end()
       clientRef.current = null
+      setConnected(false)
     }
   }, [url, deviceId, handleMessage])
 

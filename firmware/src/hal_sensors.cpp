@@ -58,14 +58,31 @@ float read_temperature_c(void) {
 float read_ph(void) {
   const float adc_mv = read_adc_mv_median(kPinPh);
   const float sensor_mv = mv_to_sensor_mv(adc_mv, DIV_PH);
-  return ph_from_voltage(sensor_mv,
-                         kPhCalPoint1_pH, kPhCalPoint1_mV,
-                         kPhCalPoint2_pH, kPhCalPoint2_mV);
+  const float ph = ph_from_voltage(sensor_mv,
+                                   kPhCalPoint1_pH, kPhCalPoint1_mV,
+                                   kPhCalPoint2_pH, kPhCalPoint2_mV);
+  // Diagnostic: bandingkan adc_mv dengan multimeter pada pin (GPIO35).
+  Serial.print(F("[ph] adc_mv="));
+  Serial.print(adc_mv, 0);
+  Serial.print(F(" sensor_mv="));
+  Serial.print(sensor_mv, 0);
+  Serial.print(F(" ph="));
+  Serial.println(ph, 3);
+  return ph;
 }
 
 float read_tds_ppm(float temperature_c) {
   const float adc_mv = read_adc_mv_median(kPinTds);
-  return tds_from_voltage(adc_mv, temperature_c);
+  const float tds = tds_from_voltage(adc_mv, temperature_c);
+  // Diagnostic: bandingkan adc_mv dengan multimeter pada pin (GPIO32).
+  // Catatan: > ~2450 mV keluar dari rentang linear ADC ESP32 (11 dB).
+  Serial.print(F("[tds] adc_mv="));
+  Serial.print(adc_mv, 0);
+  Serial.print(F(" temp_c="));
+  Serial.print(temperature_c, 2);
+  Serial.print(F(" tds_ppm="));
+  Serial.println(tds, 1);
+  return tds;
 }
 
 int read_battery_mv(void) {

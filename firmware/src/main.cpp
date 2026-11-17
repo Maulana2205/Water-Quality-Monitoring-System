@@ -48,6 +48,21 @@ void setup() {
   Serial.begin(115200);
   unsigned long start_ms = millis();
 
+#ifdef CALIBRATION_MODE
+  // Mode kalibrasi: cetak adc_mv mentah tiap 1 detik. Probe pH butuh beberapa
+  // menit untuk stabil — lihat nilainya turun/naik lalu catat saat konstan.
+  // Tidak konek WiFi, tidak deep sleep. Keluar dengan reset board.
+  Serial.println(F("[calib] raw ADC readout every 1s (reset to exit)"));
+  sensors_init();
+  sensors_power_on();
+  for (;;) {
+    const float t = read_temperature_c();
+    read_ph();          // prints "[ph] adc_mv=... sensor_mv=... ph=..."
+    read_tds_ppm(t);    // prints "[tds] adc_mv=... temp_c=... tds_ppm=..."
+    delay(1000);
+  }
+#endif
+
   // Boot counter yang bertahan di RTC memory; dashboard deteksi siklus terlewat.
   g_seq++;
 

@@ -12,9 +12,6 @@ constexpr int kPinBattery = 33;      // optional battery divider -> ADC1
 /// Sensor power-gate GPIO (load switch / MOSFET). Sesuaikan dengan wiring fisik.
 constexpr int kPinSensorGate = 26;
 
-/// ADC attenuation: 11 dB => ~0-3300 mV range (uses eFuse calibration).
-constexpr int kAdcAttenuation = 11;
-
 /// Jumlah sampel median filter per sensor per siklus.
 constexpr int kSamplesPerSensor = 30;
 

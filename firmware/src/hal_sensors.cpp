@@ -10,11 +10,15 @@
 static OneWire s_oneWire(kPinDs18b20);
 static DallasTemperature s_ds(&s_oneWire);
 
+/// ADC attenuation: 11 dB => ~0-3300 mV range (uses eFuse calibration).
+/// Harus enum adc_attenuation_t (nilai 0-4), bukan angka dB mentah.
+static constexpr adc_attenuation_t kAdcAttenuation = ADC_11db;
+
 bool sensors_init(void) {
   pinMode(kPinSensorGate, OUTPUT);
   digitalWrite(kPinSensorGate, LOW);
 
-  analogSetAttenuation(static_cast<adc_attenuation_t>(kAdcAttenuation));
+  analogSetAttenuation(kAdcAttenuation);
   pinMode(kPinPh, INPUT);
   pinMode(kPinTds, INPUT);
   pinMode(kPinBattery, INPUT);

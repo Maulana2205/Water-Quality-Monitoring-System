@@ -51,8 +51,8 @@ describe('mqttClient (mocked mqtt)', () => {
     c.subscribe('water_quality/+/telemetry')
     c.subscribe('water_quality/+/alert')
 
-    expect(client.subscribe).toHaveBeenCalledWith('water_quality/+/telemetry')
-    expect(client.subscribe).toHaveBeenCalledWith('water_quality/+/alert')
+    expect(client.subscribe).toHaveBeenCalledWith('water_quality/+/telemetry', expect.any(Function))
+    expect(client.subscribe).toHaveBeenCalledWith('water_quality/+/alert', expect.any(Function))
   })
 
   it('delivers incoming messages to the callback', () => {

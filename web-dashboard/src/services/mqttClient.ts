@@ -37,6 +37,7 @@ export function createMqttClient(
     client = mqtt.connect(url, options)
     if (onMessage) {
       client.on('message', (topic: string, payload: Buffer) => {
+        console.log('[mqtt] msg', topic)
         onMessage(topic, payload)
       })
     }
@@ -57,7 +58,17 @@ export function createMqttClient(
   }
 
   function subscribe(topic: string): void {
-    client?.subscribe(topic)
+    client?.subscribe(topic, (err, granted) => {
+      if (err) {
+        console.error('[mqtt] subscribe error:', topic, err.message)
+      } else {
+        const qos = granted?.map((g) => g.qos).join(',')
+        console.log(`[mqtt] subscribed ${topic} (granted qos=${qos})`)
+        if (qos === '128') {
+          console.error(`[mqtt] SUBSCRIBE ditolak broker untuk ${topic} — cek ACL kredensial read-only`)
+        }
+      }
+    })
   }
 
   function end(): void {

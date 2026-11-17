@@ -6,7 +6,7 @@ Rangkaian lengkap ESP32 Dev Module + sensor kualitas air, setelah sensor kekeruh
 * **ADC1 pins only** (GPIO32, 33, 35). Jangan gunakan ADC2 saat WiFi aktif.
 * Baca ADC dengan `analogReadMilliVolts()` pada attenuasi **11 dB** (≈ 0–3300 mV, eFuse calibrated).
 * Tegangan pembagi diterapkan di **kode** (`DIV_PH = 1.5` di `sensor_math.cpp`), bukan di hardware raw output.
-* Semua sensor daya diturunkan via **gate pin GPIO23** sebelum `esp_deep_sleep_start()`.
+* Semua sensor daya diturunkan via **gate pin GPIO26** (ADC2, aman dipakai sebagai output digital) sebelum `esp_deep_sleep_start()`.
 
 ## Pinout ESP32 Dev Module
 
@@ -16,7 +16,7 @@ Rangkaian lengkap ESP32 Dev Module + sensor kualitas air, setelah sensor kekeruh
 | pH Signal | GPIO35 | D35 | pH 4502C Po | Via pembagi 10k/20k, V+ 5V |
 | TDS Signal | GPIO32 | D32 | TDS v1.0 Analog Out | Tanpa pembagi |
 | Baterai (opsional) | GPIO33 | D33 | Pembagi baterai | Hanya jika `has_battery = true` |
-| Sensor Gate | GPIO23 | D23 | Load switch / MOSFET | OUTPUT, nyalakan/matikan daya sensor |
+| Sensor Gate | GPIO26 | D26 | Load switch / MOSFET | OUTPUT, nyalakan/matikan daya sensor |
 
 ## Koneksi per Sensor
 
@@ -59,11 +59,11 @@ GPIO33 ───── titik center   +
 GND  ─────── GND            −
 ```
 
-### E. Sensor Power Gate (GPIO23)
+### E. Sensor Power Gate (GPIO26)
 ```
 ESP32       Gate/MOSFET     VCC sensor board
 ─────────────────────────────────────────────
-GPIO23 ───── Gate           5V / 3V3 (ke sensor pH & TDS)
+GPIO26 ───── Gate           5V / 3V3 (ke sensor pH & TDS)
 GND  ─────── Source         GND
 ```
 *Dinyalakan sebelum sampling (`sensors_power_on()`, warm-up ≈ 2 s), dimatikan sebelum deep sleep.*
@@ -83,13 +83,13 @@ ESP32 Dev Module
 ├─ GPIO32 ───── TDS Analog Out
 ├─ GPIO33 ───── Baterai (opsional)
 ├─ GPIO35 ───── pH Po (via divider)
-└─ GPIO23 ───── Sensor Gate (load switch/MOSFET)
+└─ GPIO26 ───── Sensor Gate (load switch/MOSFET)
 ```
 
 ## Perhatian Hardware
 
 1. **Tegangan sensor:** pH 4502C butuh 5V (`V+`), TDS v1.0 dan DS18B20 pakai 3V3. Jangan terbalik.
-2. **ADC1 only:** GPIO32, 33, 35 adalah ADC1 — aman dipakai sambil WiFi aktif. Jangan gunakan GPIO25/26 (ADC2) saat WiFi on.
+2. **ADC1 only (analog):** GPIO32, 33, 35 adalah ADC1 — aman dipakai sambil WiFi aktif. Jangan gunakan GPIO25/26 (ADC2) untuk pin **analog** saat WiFi on; GPIO26 dipakai sebagai **digital output** (gate MOSFET) dan tidak melakukan sampling analog.
 3. **Attenuasi 11 dB:** Rentang baca ~0–3300 mV, gunakan eFuse calibration via `analogReadMilliVolts()`.
 4. **Pembagi kode, tidak hardware:** `DIV_PH = 1.5` diterapkan di `sensor_math.cpp`, tidak di rangkaian fisik.
 5. **Power gating:** Nyalakan sensor gate 2 s (warm-up) sebelum sampling, matikan sebelum `esp_deep_sleep_start()` untuk hemat daya tidur.
@@ -103,6 +103,6 @@ ESP32 Dev Module
 | pH 4502C | GPIO35 | 5V | GND | Via pembagi 10k/20k, DIV_PH=1.5 di kode |
 | TDS v1.0 | GPIO32 | 3V3 | GND | Tanpa pembagi |
 | Baterai (opt) | GPIO33 | — | GND | Pembagi baterai |
-| Gate | GPIO23 | — | — | Load switch/MOSFET |
+| Gate | GPIO26 | — | — | Load switch/MOSFET (ADC2 dipakai sebagai digital output) |
 
 Sensor **SEN0189 (keringauh/NTU)** pada GPIO34 **tidak dipakai lagi** dan sudah dihapus dari kode serta dokumentasi ini.

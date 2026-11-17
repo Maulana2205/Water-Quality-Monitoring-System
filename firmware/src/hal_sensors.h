@@ -10,7 +10,7 @@ constexpr int kPinTds = 32;          // TDS v1.0 analog out -> ADC1 (no divider)
 constexpr int kPinBattery = 33;      // optional battery divider -> ADC1
 
 /// Sensor power-gate GPIO (load switch / MOSFET). Sesuaikan dengan wiring fisik.
-constexpr int kPinSensorGate = 23;
+constexpr int kPinSensorGate = 26;
 
 /// ADC attenuation: 11 dB => ~0-3300 mV range (uses eFuse calibration).
 constexpr int kAdcAttenuation = 11;

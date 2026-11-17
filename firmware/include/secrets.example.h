@@ -2,7 +2,11 @@
 #define SECRETS_H
 
 /* Copy this file to secrets.h (gitignored) and fill in real values.
- * Never commit real WiFi / MQTT credentials. */
+ * Never commit real WiFi / MQTT credentials.
+ *
+ * WiFi: TIDAK lagi di sini. Jaringan dipilih saat runtime lewat captive portal
+ * (AP "WaterQuality-Setup") dan disimpan di NVS. WIFI_SSID/WIFI_PASSWORD di
+ * bawah hanya legacy dan tidak dipakai. */
 
 #define WIFI_SSID             "YOUR_WIFI_SSID"
 #define WIFI_PASSWORD         "YOUR_WIFI_PASSWORD"

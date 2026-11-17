@@ -5,6 +5,7 @@
 
 #include "hal_sensors.h"
 #include "net.h"
+#include "wifi_manager.h"
 #include "secrets.h"
 #include "../lib/water_logic/classifier.h"
 #include "../lib/water_logic/payload.h"
@@ -18,6 +19,7 @@ RTC_DATA_ATTR uint32_t g_last_ntp_sync = 0;
 static constexpr uint64_t kDeepSleepUs = 30ULL * 60ULL * 1000000ULL; // 30 menit
 static constexpr unsigned long kWatchdogMs = 30000UL;                // 30 s
 static constexpr unsigned long kPubackWaitMs = 5000UL;               // tunggu PUBACK QoS 1
+static constexpr unsigned long kPortalTimeoutMs = 5UL * 60UL * 1000UL; // captive portal 5 menit
 
 static inline bool watchdog_expired(unsigned long start_ms) {
   return (millis() - start_ms) > kWatchdogMs;
@@ -35,12 +37,34 @@ static void enter_sleep(unsigned long active_time_ms) {
   esp_deep_sleep_start();
 }
 
+/** Tidur tanpa sensor/net (dipakai saat belum ada kredensial WiFi). */
+static void sleep_now(void) {
+  WiFi.mode(WIFI_OFF);
+  esp_sleep_enable_timer_wakeup(kDeepSleepUs);
+  esp_deep_sleep_start();
+}
+
 void setup() {
   Serial.begin(115200);
   unsigned long start_ms = millis();
 
   // Boot counter yang bertahan di RTC memory; dashboard deteksi siklus terlewat.
   g_seq++;
+
+  // --- 0. WiFi config mode: jika belum ada kredensial, buka captive portal ---
+  if (!wifi_mgr_have_credentials()) {
+    Serial.println(F("Belum ada kredensial WiFi -> captive portal"));
+    if (wifi_mgr_start_portal(kPortalTimeoutMs)) {
+      Serial.println(F("Kredensial tersimpan, restart..."));
+      g_wifi_channel = 0;
+      g_wifi_bssid[0] = 0;
+      g_last_ntp_sync = 0;
+      ESP.restart();
+    }
+    Serial.println(F("Portal timeout tanpa kredensial -> tidur"));
+    sleep_now();
+    return;
+  }
 
   // --- 1. Inisialisasi sensor (ADC 11 dB, OneWire/DS18B20, gate pin) ---
   if (!sensors_init()) {
@@ -66,9 +90,27 @@ void setup() {
 
   // --- 5. Koneksi (WiFi + NTP + MQTT TLS dengan CA tertancap) ---
   bool connected = false;
+  bool wifi_ok = false;
   if (!watchdog_expired(start_ms)) {
-    connected = net_connect_wifi() && net_mqtt_connect();
+    wifi_ok = net_connect_wifi();
+    if (wifi_ok) connected = net_mqtt_connect();
   }
+
+  // WiFi gagal -> tawarkan captive portal agar user bisa ganti jaringan.
+  if (!wifi_ok && !watchdog_expired(start_ms)) {
+    Serial.println(F("WiFi tidak terhubung -> captive portal"));
+    if (wifi_mgr_start_portal(kPortalTimeoutMs)) {
+      Serial.println(F("Kredensial tersimpan, restart..."));
+      g_wifi_channel = 0;
+      g_wifi_bssid[0] = 0;
+      g_last_ntp_sync = 0;
+      ESP.restart();
+    }
+    Serial.println(F("Portal timeout -> tidur"));
+    enter_sleep(static_cast<uint32_t>(millis() - start_ms));
+    return;
+  }
+
   if (!connected) {
     Serial.println(F("koneksi jaringan gagal/lewati (watchdog)"));
     enter_sleep(static_cast<uint32_t>(millis() - start_ms));

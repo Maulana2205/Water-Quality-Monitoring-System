@@ -9,6 +9,7 @@
 #include "../lib/water_logic/payload.h"
 
 #include "secrets.h"
+#include "wifi_manager.h"
 
 // Pinned broker CA certificate — download from EMQX Cloud console and paste here.
 // Never call setInsecure(). Empty => MQTT connect refused (fail-safe).
@@ -43,11 +44,15 @@ static MQTTClient s_mqttClient;
 static uint32_t s_last_ts = 0;
 
 bool net_connect_wifi(void) {
+  String ssid, password;
+  wifi_mgr_get(ssid, password);
+  if (ssid.isEmpty()) return false; // belum dikonfigurasi
+
   WiFi.mode(WIFI_STA);
   if (g_wifi_channel != 0) {
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD, g_wifi_channel, g_wifi_bssid);
+    WiFi.begin(ssid.c_str(), password.c_str(), g_wifi_channel, g_wifi_bssid);
   } else {
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    WiFi.begin(ssid.c_str(), password.c_str());
   }
 
   unsigned long start = millis();

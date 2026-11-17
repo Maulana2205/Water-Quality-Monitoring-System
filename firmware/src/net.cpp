@@ -129,9 +129,10 @@ bool net_publish_telemetry(ArduinoJson::JsonDocument& doc) {
   }
   String topic = String("water_quality/") + DEVICE_ID + "/telemetry";
   String payload = serialize_doc(doc);
+  // Signature 256dpi/MQTT: publish(topic, payload, retained, qos).
   // QoS 0, retain=true.
   bool ok = s_mqttClient.publish(topic.c_str(), payload.c_str(),
-                                 kQosTelemetry, kRetainTelemetry, false);
+                                 kRetainTelemetry, kQosTelemetry);
   Serial.print(F("[mqtt] publish telemetry "));
   Serial.println(ok ? F("ok") : F("fail"));
   return ok;
@@ -141,9 +142,10 @@ bool net_publish_alert(ArduinoJson::JsonDocument& doc) {
   if (!s_mqttClient.connected()) return false;
   String topic = String("water_quality/") + DEVICE_ID + "/alert";
   String payload = serialize_doc(doc);
+  // Signature 256dpi/MQTT: publish(topic, payload, retained, qos).
   // QoS 1: lwmqtt blocks until PUBACK (or internal timeout).
   return s_mqttClient.publish(topic.c_str(), payload.c_str(),
-                              kQosAlert, kRetainAlert, false);
+                              kRetainAlert, kQosAlert);
 }
 
 void net_disconnect(void) {

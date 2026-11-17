@@ -78,8 +78,13 @@ export function SustainabilityPanel({ data }: { data: Telemetry[] }) {
         </p>
         {energyMetrics.map(renderRow)}
       </div>
-      <p className="px-4 pt-3 text-xs text-slate-500 dark:text-slate-400">
-        Angka energi & umur baterai adalah <strong>perkiraan</strong> — akan diperbarui dengan pengukuran P_sleep aktual (Phase 6). TDS rendah berarti air lebih mudah diproses dan hemat energi pengolahan.
+      <p className="px-4 pt-3 text-xs text-slate-500 dark:text-slate-400 space-y-1">
+        <span className="block">
+          Angka energi & umur baterai merupakan <strong>perkiraan</strong>.
+        </span>
+        <span className="block">
+          TDS rendah berarti air lebih mudah diproses dan hemat energi pengolahan.
+        </span>
       </p>
     </div>
   )

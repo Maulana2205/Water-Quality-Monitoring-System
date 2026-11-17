@@ -46,7 +46,10 @@ static uint32_t s_last_ts = 0;
 bool net_connect_wifi(void) {
   String ssid, password;
   wifi_mgr_get(ssid, password);
-  if (ssid.isEmpty()) return false; // belum dikonfigurasi
+  if (ssid.isEmpty()) {
+    Serial.println(F("[wifi] no credentials"));
+    return false;
+  }
 
   WiFi.mode(WIFI_STA);
   if (g_wifi_channel != 0) {
@@ -58,11 +61,15 @@ bool net_connect_wifi(void) {
   unsigned long start = millis();
   while (WiFi.status() != WL_CONNECTED) {
     if (millis() - start > kWifiTimeoutMs) {
+      Serial.println(F("[wifi] connect timeout"));
       WiFi.disconnect();
       return false;
     }
     delay(100);
   }
+
+  Serial.print(F("[wifi] connected ip="));
+  Serial.println(WiFi.localIP());
 
   // Cache channel/BSSID for next wake.
   g_wifi_channel = WiFi.channel();
@@ -86,18 +93,26 @@ bool net_connect_wifi(void) {
 bool net_mqtt_connect(void) {
   if (kCaCert[0] == '\0') {
     // Fail-safe: no pinned CA => do not connect insecurely.
+    Serial.println(F("[mqtt] no CA cert pinned"));
     return false;
   }
+  Serial.print(F("[mqtt] connecting to "));
+  Serial.print(MQTT_HOST);
+  Serial.print(F(":"));
+  Serial.println(MQTT_PORT);
+
   s_wifiClient.setCACert(kCaCert);
   s_mqttClient.begin(MQTT_HOST, MQTT_PORT, s_wifiClient);
 
   unsigned long start = millis();
   while (!s_mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD)) {
     if (millis() - start > kMqttTimeoutMs) {
+      Serial.println(F("[mqtt] connect failed/timeout"));
       return false;
     }
     delay(100);
   }
+  Serial.println(F("[mqtt] connected"));
   return true;
 }
 
@@ -108,12 +123,18 @@ static String serialize_doc(ArduinoJson::JsonDocument& doc) {
 }
 
 bool net_publish_telemetry(ArduinoJson::JsonDocument& doc) {
-  if (!s_mqttClient.connected()) return false;
+  if (!s_mqttClient.connected()) {
+    Serial.println(F("[mqtt] publish skipped (not connected)"));
+    return false;
+  }
   String topic = String("water_quality/") + DEVICE_ID + "/telemetry";
   String payload = serialize_doc(doc);
   // QoS 0, retain=true.
-  return s_mqttClient.publish(topic.c_str(), payload.c_str(),
-                              kQosTelemetry, kRetainTelemetry, false);
+  bool ok = s_mqttClient.publish(topic.c_str(), payload.c_str(),
+                                 kQosTelemetry, kRetainTelemetry, false);
+  Serial.print(F("[mqtt] publish telemetry "));
+  Serial.println(ok ? F("ok") : F("fail"));
+  return ok;
 }
 
 bool net_publish_alert(ArduinoJson::JsonDocument& doc) {

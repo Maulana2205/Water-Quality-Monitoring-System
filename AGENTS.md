@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Project: IoT Water Quality Monitoring System (ESP32 + EMQX Cloud + React dashboard).
-Source of truth: `plan.md` (v2). Read it fully before starting any task. If this file and `plan.md` conflict, stop and ask.
+Source of truth: `README.md` plus the `shared/` contracts. Read `README.md` fully before starting any task. If this file and `README.md` conflict, stop and ask.
 
 ## Communication
 
@@ -12,6 +12,8 @@ Source of truth: `plan.md` (v2). Read it fully before starting any task. If this
 ## Repository layout
 
 ```
+README.md       source of truth: tech stack, layout, features, wiring, time/energy budget
+AGENTS.md       this file (agent rules)
 shared/         thresholds.json, telemetry.schema.json, fixtures/   (contract between firmware and web)
 firmware/       PlatformIO project (C++/Arduino-ESP32)
   lib/water_logic/   PURE C++ (no Arduino.h). All business logic lives here.
@@ -47,11 +49,11 @@ If a command fails because a tool is missing (for example no host `g++` for `nat
 
 ## Workflow rules
 
-1. **One phase per session.** Work only on the phase the user names (see `plan.md` §5). Do not jump ahead.
+1. **One task per session.** Work only on the component or task the user names (see `README.md` §Fungsional). Do not jump ahead.
 2. **Plan first.** For any non-trivial task, list the files you will create or change and wait for approval if the user is in Plan mode.
 3. **TDD.** For logic in `lib/water_logic`, `web-dashboard/src/lib`, and `services/`: write the failing test first, run it and confirm it fails for the right reason, then implement until green. One module per iteration.
 4. **Definition of done for any task:** relevant tests pass, build passes, and you have shown the output. A task with a red test or build is not done.
-5. **Small commits.** After a green phase, propose a commit message (conventional commits: `feat:`, `test:`, `fix:`, `chore:`). Commit only when the user asks.
+5. **Small commits.** After a green task, propose a commit message (conventional commits: `feat:`, `test:`, `fix:`, `chore:`). Commit only when the user asks.
 6. **Stop and ask** if a decision changes thresholds, the payload contract, the tech stack, or anything touching hardware wiring.
 
 ## Architecture rules
@@ -71,7 +73,7 @@ If a command fails because a tool is missing (for example no host `g++` for `nat
 * Implement a watchdog: if the active window exceeds 30 s, skip publishing and go to sleep.
 * Keep per-cycle state (`seq`, WiFi channel/BSSID cache, last NTP sync) in `RTC_DATA_ATTR`.
 * Use the pinned broker CA certificate. Never use `setInsecure()`.
-* Do not add `delay()` for long waits; use the planned time budget in `plan.md` §5 Phase 2.
+* Do not add `delay()` for long waits; use the time budget in `README.md` §Anggaran waktu & energi.
 
 ## Web rules
 
@@ -102,15 +104,15 @@ If a command fails because a tool is missing (for example no host `g++` for `nat
 * C++: C++17, `snake_case` for functions and files, no dynamic allocation in `lib/water_logic` hot paths, `constexpr` for constants.
 * TypeScript: `strict` on, no `any`, functional components and hooks, named exports.
 * Tests are named after behavior (`returns_7_at_ph7_voltage`, `rejects_payload_missing_tds`).
-* Keep `plan.md` updated: tick checkboxes as phases complete and note deviations at the bottom under "Deviations".
+* Keep `README.md` updated: record current status, known issues, and deviations under "Status & catatan terkini".
 
-## Per-phase checklist for the agent
+## Checklist for the agent
 
-Before saying a phase is done:
+Before saying a task is done:
 
-- [ ] All tasks of the phase in `plan.md` addressed
+- [ ] All tasks named by the user are addressed
 - [ ] Tests written first and now passing (show output)
 - [ ] `pio run -e esp32dev` and/or `npm run build` pass
 - [ ] No secrets in the diff
-- [ ] `plan.md` checkboxes and Deviations section updated
+- [ ] `README.md` "Status & catatan terkini" updated if behavior or known issues changed
 - [ ] Summary to the user in Indonesian: what changed, what was verified, what the user must do manually next

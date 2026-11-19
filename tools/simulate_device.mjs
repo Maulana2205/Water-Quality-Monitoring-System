@@ -4,7 +4,7 @@
  * Publishes fake telemetry scenarios to an MQTT broker for field-testing the
  * web dashboard without real hardware.
  *
- * Scenarios (per plan.md §5.4):
+ * Scenarios (per README.md §Fungsional):
  *   normal      - typical drinkable water reading
  *   high-tds    - TDS above 1000 ppm -> UNFIT + alert
  *   bad-ph      - pH outside [6.5, 8.5] -> UNFIT + alert

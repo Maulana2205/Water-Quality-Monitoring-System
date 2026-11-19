@@ -1,4 +1,4 @@
-# Secrets (gitignored per AGENTS.md / plan.md)
+# Secrets (gitignored per AGENTS.md / README.md)
 firmware/include/secrets.h
 web-dashboard/.env
 tools/.env

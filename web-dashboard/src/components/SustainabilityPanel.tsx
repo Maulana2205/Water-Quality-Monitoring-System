@@ -2,11 +2,11 @@ import type { Telemetry } from '../lib/parseTelemetry'
 import { Database, TrendingUp, Activity, Leaf, Clock, Zap, BatteryCharging } from 'lucide-react'
 
 // ponytail: angka di bawah ini PERKIRAAN sementara. Ganti dengan hasil ukur
-// P_sleep di Phase 6 (sesuai plan.md §2c) — stock ESP32 DevKit idles jauh di
+// P_sleep aktual (lihat README.md §Anggaran waktu & energi) — stock ESP32 DevKit idles jauh di
 // atas target 0.75 mA karena USB-UART/LDO/power LED, jadi arus "naik" saat
 // deep sleep itu wajar. Semua turunan (energi, umur baterai) dihitung dari sini.
 const VOLTAGE_V = 3.7 // baterai 18650 nominal
-const ACTIVE_MA = 120 // ≈ 0.444 W @ 3.7 V (budget plan.md §2c)
+const ACTIVE_MA = 120 // ≈ 0.444 W @ 3.7 V (budget README.md §Anggaran waktu & energi)
 const SLEEP_MA = 15 // placeholder DevKit stock (arus naik saat deep sleep)
 const CAPACITY_MAH = 3000 // 18650
 const CYCLE_S = 30 * 60 // 1 siklus / 30 menit (48 siklus/hari)

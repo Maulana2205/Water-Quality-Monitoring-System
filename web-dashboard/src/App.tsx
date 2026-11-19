@@ -1,4 +1,4 @@
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Droplets } from 'lucide-react'
 import { DeviceStatus } from './components/DeviceStatus'
 import { HistoricalChart } from './components/HistoricalChart'
 import { QualityStatusBadge } from './components/QualityStatusBadge'
@@ -50,8 +50,13 @@ export default function App() {
       {/* Header */}
       <header className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 md:flex md:items-center md:justify-between shadow-sm animate-fade-in">
         <div>
-          <h1 className="text-lg font-bold tracking-tight">Water Quality Dashboard</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-sm shrink-0">
+              <Droplets size={20} strokeWidth={2.2} aria-hidden="true" />
+            </span>
+            <h1 className="text-lg font-bold tracking-tight">Water Quality Dashboard</h1>
+          </div>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Monitoring kualitas air IoT (ESP32 + EMQX Cloud).
           </p>
         </div>

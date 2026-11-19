@@ -47,12 +47,18 @@ static float read_adc_mv_median(int pin) {
 }
 
 float read_temperature_c(void) {
-  s_ds.requestTemperatures();
-  float c = s_ds.getTempCByIndex(0);
-  if (c == DEVICE_DISCONNECTED_C || c < -50.0f || c > 100.0f) {
-    return NAN;
+  // DS18B20 occasionally drops out (returns DEVICE_DISCONNECTED_C). Retry a few
+  // times so one glitch does not discard the whole telemetry cycle (build_telemetry
+  // rejects NaN).
+  for (int attempt = 0; attempt < 3; ++attempt) {
+    s_ds.requestTemperatures();
+    float c = s_ds.getTempCByIndex(0);
+    if (c != DEVICE_DISCONNECTED_C && c > -50.0f && c < 100.0f) {
+      return c;
+    }
+    delay(20);
   }
-  return c;
+  return NAN;
 }
 
 float read_ph(void) {

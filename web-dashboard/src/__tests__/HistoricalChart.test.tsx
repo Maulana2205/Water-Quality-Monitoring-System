@@ -23,7 +23,14 @@ describe('HistoricalChart', () => {
 
   it('merender region grafik saat data tersedia (tanpa pesan kosong)', () => {
     render(<HistoricalChart data={[base, { ...base, seq: 2, ts: base.ts + 300 }]} />)
-    expect(screen.getByRole('region', { name: /grafik/ })).toBeTruthy()
+    expect(screen.getByRole('region', { name: 'grafik riwayat kualitas air' })).toBeTruthy()
     expect(screen.queryByText(/Belum ada data riwayat/)).toBeNull()
+  })
+
+  it('menampilkan tiga grafik terpisah: Suhu, pH, dan TDS', () => {
+    render(<HistoricalChart data={[base, { ...base, seq: 2, ts: base.ts + 300 }]} />)
+    expect(screen.getByRole('region', { name: 'grafik Suhu' })).toBeTruthy()
+    expect(screen.getByRole('region', { name: 'grafik pH' })).toBeTruthy()
+    expect(screen.getByRole('region', { name: 'grafik TDS' })).toBeTruthy()
   })
 })

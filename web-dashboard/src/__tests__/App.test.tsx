@@ -40,6 +40,28 @@ describe('App', () => {
     expect(screen.getByText('27.5 °C')).toBeTruthy()
   })
 
+  it('menampilkan panel kelayakan untuk tiga guna', () => {
+    mockUseTelemetry.mockReturnValue({
+      latest: {
+        device_id: 'esp32_water_01',
+        ts: 1,
+        seq: 1,
+        temperature: 27.5,
+        ph: 7.2,
+        tds_ppm: 145,
+        status: 'DRINKABLE',
+      },
+      history: [],
+      state: 'online',
+      connected: true,
+      invalidCount: 0,
+      alerts: [],
+    })
+    render(<App />)
+    expect(screen.getByText('Kelayakan penggunaan')).toBeTruthy()
+    expect(screen.getByText('Cuci baju')).toBeTruthy()
+  })
+
   it('kartu TDS tetap hijau walaupun status overall UNFIT karena pH', () => {
     mockUseTelemetry.mockReturnValue({
       latest: {

@@ -14,7 +14,7 @@ import {
 import { deviceState } from '../lib/staleness'
 import { classifyParameter, type SensorKey } from '../lib/classify'
 import { timeDomain } from '../lib/chartDomain'
-import { referenceLinesFor } from '../lib/chartConfig'
+import { axisLabelFor, referenceLinesFor } from '../lib/chartConfig'
 
 type Range = '1j' | '6j' | '12j' | '24j'
 
@@ -134,7 +134,7 @@ function SensorChart({
       <div className="h-[180px]">
         <ResponsiveContainer width="100%" height={180}>
           <LineChart data={data} margin={{ top: 6, right: 52, bottom: showXAxis ? 20 : 4, left: 4 }}>
-            <CartesianGrid strokeDasharray="1 3" stroke="#e2e8f0" vertical={false} />
+            <CartesianGrid strokeDasharray="3 5" stroke="#e2e8f0" vertical={false} />
             <XAxis
               dataKey="ts"
               type="number"
@@ -144,15 +144,23 @@ function SensorChart({
               tickFormatter={formatWib}
               axisLine={false}
               tickLine={false}
+              tick={{ fontSize: 10, fill: '#94a3b8' }}
+              label={
+                showXAxis
+                  ? { value: 'Waktu (WIB)', position: 'insideBottom', offset: -10, fontSize: 10, fill: '#94a3b8' }
+                  : undefined
+              }
             />
             <YAxis
               orientation="right"
-              width={48}
+              width={52}
               domain={yDomain}
               tickFormatter={(v: number) => formatValue(v, sensorKey)}
               axisLine={false}
               tickLine={false}
               allowDecimals={sensorKey !== 'tds_ppm'}
+              tick={{ fontSize: 10, fill: '#94a3b8' }}
+              label={{ value: axisLabelFor(sensorKey), position: 'top', fontSize: 10, fill: '#94a3b8' }}
             />
             <Tooltip content={<SingleTooltip sensorKey={sensorKey} unit={unit} />} />
             {lines.map((line) => (
@@ -166,7 +174,7 @@ function SensorChart({
               />
             ))}
             <Line
-              type="monotone"
+              type="linear"
               dataKey={sensorKey}
               stroke={color}
               strokeWidth={2}

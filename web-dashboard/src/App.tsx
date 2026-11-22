@@ -2,6 +2,7 @@ import { AlertCircle, Droplets } from 'lucide-react'
 import { DeviceStatus } from './components/DeviceStatus'
 import { HistoricalChart } from './components/HistoricalChart'
 import { QualityStatusBadge } from './components/QualityStatusBadge'
+import { UsageSuitability } from './components/UsageSuitability'
 import { SensorCard } from './components/SensorCard'
 import { SustainabilityPanel } from './components/SustainabilityPanel'
 import { useTelemetry } from './hooks/useTelemetry'
@@ -118,6 +119,8 @@ export default function App() {
         <DeviceStatus state={view.state} latest={latest} seqGap={seqGap} />
         {latest && <QualityStatusBadge status={latest.status} />}
       </div>
+
+      {latest && <UsageSuitability status={latest.status} />}
 
       {/* Kartu sensor — satu sensor per kartu lebar, tidak menumpuk */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-5">

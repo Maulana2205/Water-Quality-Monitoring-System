@@ -6,6 +6,13 @@ export interface RefLine {
   color: string
 }
 
+/** Label sumbu yang ramah pengguna untuk tiap sensor. */
+export function axisLabelFor(key: SensorKey): string {
+  if (key === 'temperature') return 'Suhu (°C)'
+  if (key === 'ph') return 'pH'
+  return 'TDS (ppm)'
+}
+
 /** Garis ambang khusus untuk grafik satu sensor (sumber: thresholds.json). */
 export function referenceLinesFor(key: SensorKey): RefLine[] {
   if (key === 'ph') {

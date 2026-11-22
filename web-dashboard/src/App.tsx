@@ -6,6 +6,8 @@ import { UsageSuitability } from './components/UsageSuitability'
 import { SensorCard } from './components/SensorCard'
 import { SustainabilityPanel } from './components/SustainabilityPanel'
 import { useTelemetry } from './hooks/useTelemetry'
+import { useTheme } from './hooks/useTheme'
+import { ThemeToggle } from './components/ThemeToggle'
 import { classifyParameter } from './lib/classify'
 
 const URL = import.meta.env.VITE_MQTT_BROKER_URL ?? 'wss://broker:8084/mqtt'
@@ -33,6 +35,7 @@ function lastUpdated(ts: number): string {
 }
 
 export default function App() {
+  const { theme, toggle } = useTheme()
   const view = useTelemetry({
     url: URL,
     deviceId: DEVICE_ID,
@@ -71,30 +74,33 @@ export default function App() {
               {latest ? lastUpdated(latest.ts) : '–'}
             </p>
           </div>
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-              view.connected
-                ? 'border-green-200 bg-green-50 text-green-700 dark:bg-green-900/20'
-                : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'
-            }`}
-          >
+          <div className="flex items-center gap-2">
+            <ThemeToggle theme={theme} onToggle={toggle} />
             <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                view.connected ? 'bg-green-400 animate-pulse-ok' : 'bg-slate-400'
+              className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                view.connected
+                  ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-900/40 dark:bg-green-900/20 dark:text-green-300'
+                  : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'
               }`}
-              aria-hidden="true"
-            />
-            {view.connected ? 'Terhubung ke broker' : 'Terputus'}
-          </span>
+            >
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  view.connected ? 'bg-green-400 animate-pulse-ok' : 'bg-slate-400'
+                }`}
+                aria-hidden="true"
+              />
+              {view.connected ? 'Terhubung ke broker' : 'Terputus'}
+            </span>
+          </div>
         </div>
       </header>
 
       {/* Alert banner (QoS 1) */}
       {view.alerts.length > 0 && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 shadow-glow-bad animate-fade-in">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 shadow-glow-bad animate-fade-in dark:border-red-900/50 dark:bg-red-950/40">
           <div className="flex items-start gap-3">
-            <AlertCircle size={18} strokeWidth={2} className="text-red-600 shrink-0 mt-0.5" />
-            <p className="text-sm font-semibold text-red-800">
+            <AlertCircle size={18} strokeWidth={2} className="text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+            <p className="text-sm font-semibold text-red-800 dark:text-red-200">
               <span className="font-bold">Peringatan:</span>{' '}
               {view.alerts.map((a) => ALERT_LABEL[a] ?? a).join(' · ')}
             </p>
@@ -104,10 +110,10 @@ export default function App() {
 
       {/* Invalid message counter */}
       {view.invalidCount > 0 && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/40">
           <div className="flex items-start gap-3">
-            <span className="text-amber-600 shrink-0 mt-0.5">⚠</span>
-            <p className="text-sm text-amber-800">
+            <span className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">⚠</span>
+            <p className="text-sm text-amber-800 dark:text-amber-200">
               {view.invalidCount} pesan tidak valid telah diabaikan.
             </p>
           </div>

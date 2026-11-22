@@ -134,7 +134,7 @@ function SensorChart({
       <div className="h-[180px]">
         <ResponsiveContainer width="100%" height={180}>
           <LineChart data={data} margin={{ top: 6, right: 52, bottom: showXAxis ? 20 : 4, left: 4 }}>
-            <CartesianGrid strokeDasharray="3 5" stroke="#e2e8f0" vertical={false} />
+            <CartesianGrid strokeDasharray="3 5" stroke="var(--chart-grid)" vertical={false} />
             <XAxis
               dataKey="ts"
               type="number"
@@ -144,10 +144,10 @@ function SensorChart({
               tickFormatter={formatWib}
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 10, fill: '#94a3b8' }}
+              tick={{ fontSize: 10, fill: 'var(--chart-tick)' }}
               label={
                 showXAxis
-                  ? { value: 'Waktu (WIB)', position: 'insideBottom', offset: -10, fontSize: 10, fill: '#94a3b8' }
+                  ? { value: 'Waktu (WIB)', position: 'insideBottom', offset: -10, fontSize: 10, fill: 'var(--chart-tick)' }
                   : undefined
               }
             />
@@ -159,8 +159,8 @@ function SensorChart({
               axisLine={false}
               tickLine={false}
               allowDecimals={sensorKey !== 'tds_ppm'}
-              tick={{ fontSize: 10, fill: '#94a3b8' }}
-              label={{ value: axisLabelFor(sensorKey), position: 'top', fontSize: 10, fill: '#94a3b8' }}
+              tick={{ fontSize: 10, fill: 'var(--chart-tick)' }}
+              label={{ value: axisLabelFor(sensorKey), position: 'top', fontSize: 10, fill: 'var(--chart-tick)' }}
             />
             <Tooltip content={<SingleTooltip sensorKey={sensorKey} unit={unit} />} />
             {lines.map((line) => (
@@ -236,7 +236,7 @@ export function HistoricalChart({ data }: { data: Telemetry[] }) {
         <h3 className="text-base font-semibold text-slate-600 dark:text-slate-300 mb-1">
           Belum ada data riwayat
         </h3>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-400 dark:text-slate-500">
           Tunggu telemetry terbaru dari perangkat.
         </p>
       </div>
@@ -256,7 +256,7 @@ export function HistoricalChart({ data }: { data: Telemetry[] }) {
           <span
             className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
               isLive
-                ? 'border-green-200 bg-green-50 text-green-700 dark:bg-green-900/20'
+                ? 'border-green-200 bg-green-50 text-green-700 dark:border-green-900/50 dark:bg-green-900/20 dark:text-green-300'
                 : 'border-slate-200 bg-slate-50 text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'
             }`}
           >

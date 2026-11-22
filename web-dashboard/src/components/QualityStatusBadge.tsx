@@ -9,9 +9,9 @@ const LABEL: Record<TelemetryStatus, string> = {
 }
 
 const VARIANT: Record<TelemetryStatus, string> = {
-  DRINKABLE: 'bg-green-100 text-green-800 border-green-200 shadow-glow-ok',
-  HYGIENE_OK: 'bg-amber-100 text-amber-800 border-amber-200 shadow-glow-warn',
-  UNFIT: 'bg-red-100 text-red-800 border-red-200 shadow-glow-bad',
+  DRINKABLE: 'bg-green-100 text-green-800 border-green-200 shadow-glow-ok dark:bg-green-900/30 dark:text-green-300 dark:border-green-800',
+  HYGIENE_OK: 'bg-amber-100 text-amber-800 border-amber-200 shadow-glow-warn dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800',
+  UNFIT: 'bg-red-100 text-red-800 border-red-200 shadow-glow-bad dark:bg-red-900/30 dark:text-red-300 dark:border-red-800',
 }
 
 const ICON: Record<TelemetryStatus, React.ComponentType<LucideProps>> = {

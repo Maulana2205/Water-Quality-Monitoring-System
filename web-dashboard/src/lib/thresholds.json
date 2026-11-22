@@ -5,6 +5,8 @@
     "upper_exclusive": true,
     "ph_both_inclusive": true
   },
+  "source": "Permenkes No. 2 Tahun 2023, Tabel 1 (Air Minum) dan Tabel 3 (Air Higiene & Sanitasi)",
+  "note": "Batas fisik-kimia identik untuk air minum dan air higiene. Parameter mikrobiologi dan persyaratan kesehatan tidak diukur sensor, sehingga klasifikasi hanya menyatakan kelayakan fisik-kimia. Field hygiene_ok dipertahankan dengan nilai yang sama agar payload lama tetap kompatibel; classify() tidak pernah menghasilkan HYGIENE_OK.",
   "parameters": {
     "ph": {
       "unit": "pH",
@@ -15,8 +17,8 @@
     "tds_ppm": {
       "unit": "ppm",
       "drinkable": { "min": 0, "max": 300, "min_inclusive": true, "max_inclusive": false },
-      "hygiene_ok": { "min": 0, "max": 1000, "min_inclusive": true, "max_inclusive": false },
-      "unfit": { "min": 1000 }
+      "hygiene_ok": { "min": 0, "max": 300, "min_inclusive": true, "max_inclusive": false },
+      "unfit": { "min": 300 }
     },
     "temperature_c": {
       "unit": "°C",
@@ -27,10 +29,10 @@
   },
   "alert_rule": {
     "ph_out_of_range": [6.5, 8.5],
-    "tds_gt": 1000
+    "tds_gte": 300
   },
   "status_labels_id": {
-    "DRINKABLE": "LAYAK KONSUMSI",
+    "DRINKABLE": "LAYAK",
     "HYGIENE_OK": "LAYAK CUCI/MANDI",
     "UNFIT": "TIDAK LAYAK"
   }

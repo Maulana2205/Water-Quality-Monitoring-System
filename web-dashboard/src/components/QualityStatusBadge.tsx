@@ -3,7 +3,7 @@ import type { LucideProps } from 'lucide-react'
 import { CheckCircle2, AlertCircle } from 'lucide-react'
 
 const LABEL: Record<TelemetryStatus, string> = {
-  DRINKABLE: 'LAYAK KONSUMSI',
+  DRINKABLE: 'LAYAK',
   HYGIENE_OK: 'LAYAK CUCI/MANDI',
   UNFIT: 'TIDAK LAYAK',
 }
@@ -25,6 +25,7 @@ export function QualityStatusBadge({ status }: { status: TelemetryStatus }) {
   const Icon = ICON[status]
   return (
     <span
+      title="Kelayakan fisik-kimia (pH, TDS, suhu). Parameter mikrobiologi tidak diukur sensor."
       className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold border shadow-sm ${VARIANT[status]}`}
     >
       <Icon size={12} strokeWidth={2} className="mr-1.5 shrink-0" />

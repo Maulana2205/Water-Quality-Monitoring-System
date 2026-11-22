@@ -40,8 +40,8 @@ unsigned alert_reasons(float ph, float tds_ppm, const Thresholds& t) {
     if (ph < t.ph_min || ph > t.ph_max) {
         reasons |= ALERT_PH_OUT_OF_RANGE;
     }
-    // strictly greater than max (1000) -> alert
-    if (tds_ppm > t.tds_hygiene_max) {
+    // Permenkes 2/2023: >= 300 mg/L is already unfit -> alert.
+    if (tds_ppm >= t.tds_hygiene_max) {
         reasons |= ALERT_TDS_GT_MAX;
     }
     return reasons;

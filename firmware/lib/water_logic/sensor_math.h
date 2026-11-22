@@ -13,10 +13,13 @@ float mv_to_sensor_mv(float adc_mv, float div);
 float tds_compensation_factor(float temperature_c);
 
 /// TDS (ppm) from compensated voltage.
-///   V_c = (voltage_mv / 1000) / f_comp
-///   TDS = (133.42*V_c^3 - 255.86*V_c^2 + 857.39*V_c) * 0.5
+///   V_c = ((voltage_mv - v0_mv) / 1000) / f_comp
+///   TDS = (133.42*V_c^3 - 255.86*V_c^2 + 857.39*V_c) * 0.5 * gain
+/// v0_mv is the calibrated baseline at zero TDS (V_TDS0 * 1000) and gain is
+/// TDS_K from the same calibration. Defaults keep legacy callers unchanged.
 /// Result clamped at >= 0.
-float tds_from_voltage(float voltage_mv, float temperature_c);
+float tds_from_voltage(float voltage_mv, float temperature_c,
+                       float v0_mv = 0.0f, float gain = 1.0f);
 
 /// Two-point pH calibration from arbitrary calibration points.
 ///   slope = (ph2 - ph1) / (mv2 - mv1)

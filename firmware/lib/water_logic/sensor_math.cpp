@@ -10,15 +10,19 @@ float tds_compensation_factor(float temperature_c) {
     return 1.0f + 0.02f * (temperature_c - 25.0f);
 }
 
-float tds_from_voltage(float voltage_mv, float temperature_c) {
+float tds_from_voltage(float voltage_mv, float temperature_c,
+                       float v0_mv, float gain) {
     const float factor = tds_compensation_factor(temperature_c);
     if (factor == 0.0f) {
         return 0.0f;
     }
-    const float v = (voltage_mv / 1000.0f) / factor;
+    float v = ((voltage_mv - v0_mv) / 1000.0f) / factor;
+    if (v < 0.0f) {
+        v = 0.0f;
+    }
     const float v2 = v * v;
     const float v3 = v2 * v;
-    float tds = (133.42f * v3 - 255.86f * v2 + 857.39f * v) * 0.5f;
+    float tds = (133.42f * v3 - 255.86f * v2 + 857.39f * v) * 0.5f * gain;
     return tds < 0.0f ? 0.0f : tds;
 }
 

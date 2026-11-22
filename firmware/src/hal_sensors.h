@@ -16,12 +16,19 @@ constexpr int kPinSensorGate = 26;
 constexpr int kSamplesPerSensor = 30;
 
 /// pH two-point calibration: (pH value, voltage mV) pairs.
-/// UKUR dengan buffer standar, lalu ganti placeholder ini.
+/// Hasil kalibrasi 2026-11-22 dari kalibrasi_sensor_air_esp32.ino.
+/// Tegangan sudah di sisi sensor (ADC mV * DIV_PH), bukan ADC mentah.
+/// Slope (3030-2852)/3 = 59.3 mV/pH (Nernst ideal ~59.16 mV/pH).
 /// mv1 == mv2 => guard returns ph1 (hindari div-by-zero).
-constexpr float kPhCalPoint1_pH = 6.86f;   // ukuran Anda: pH 6.86
-constexpr float kPhCalPoint1_mV = 1678.5f; // (1.678 + 1.679) / 2 V
-constexpr float kPhCalPoint2_pH = 4.00f;   // ukuran Anda: pH 4.0
-constexpr float kPhCalPoint2_mV = 1988.0f; // (1.987 + 1.989) / 2 V
+constexpr float kPhCalPoint1_pH = 7.00f;
+constexpr float kPhCalPoint1_mV = 2852.0f; // V_PH7 = 2.852 V
+constexpr float kPhCalPoint2_pH = 4.00f;
+constexpr float kPhCalPoint2_mV = 3030.0f; // V_PH4 = 3.030 V
+
+/// TDS calibration: baseline voltage di air 0-1 TDS (V_TDS0) dan pengali
+/// span (TDS_K). Keduanya dari sketch kalibrasi yang sama.
+constexpr float kTdsZeroMv = 253.1f; // V_TDS0 = 0.2531 V
+constexpr float kTdsGain = 1.0f;     // TDS_K belum dikalibrasi -> default
 
 /** Inisialisasi ADC (11 dB), OneWire/DS18B20, dan gate pin.
  *  Kembalikan false jika inisialisasi gagal. */

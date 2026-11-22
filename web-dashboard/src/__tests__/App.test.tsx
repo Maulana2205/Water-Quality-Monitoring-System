@@ -34,7 +34,7 @@ describe('App', () => {
     render(<App />)
 
     expect(screen.getByText('Water Quality Dashboard')).toBeTruthy()
-    expect(screen.getByText('LAYAK KONSUMSI')).toBeTruthy()
+    expect(screen.getByText('LAYAK')).toBeTruthy()
     expect(screen.getByText('ONLINE')).toBeTruthy()
     expect(screen.getByText('Suhu')).toBeTruthy()
     expect(screen.getByText('27.5 °C')).toBeTruthy()

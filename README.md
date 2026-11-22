@@ -112,14 +112,14 @@ Dokumen ini merangkum tech stack, struktur projek, fungsionalitas, wiring, dan c
   "temperature": 27.5,
   "ph": 7.2,
   "tds_ppm": 145.0,
-  "status": "HYGIENE_OK",
+  "status": "DRINKABLE",
   "active_time_ms": 18400,
   "rssi": -61,
   "fw": "0.2.0"
 }
 ```
 
-`status` adalah enum: `DRINKABLE`, `HYGIENE_OK`, `UNFIT`. Label bahasa Indonesia hanya ada di UI.
+`status` adalah enum: `DRINKABLE`, `HYGIENE_OK`, `UNFIT`. Label bahasa Indonesia hanya ada di UI. Sesuai Permenkes 2/2023, firmware **hanya menghasilkan `DRINKABLE` atau `UNFIT`**; `HYGIENE_OK` dipertahankan di skema hanya untuk kompatibilitas payload lama.
 
 ### Alert — `water_quality/<device_id>/alert` (QoS 1, retain=false)
 
@@ -134,12 +134,17 @@ Dokumen ini merangkum tech stack, struktur projek, fungsionalitas, wiring, dan c
 
 ### Ambang batas (`shared/thresholds.json`)
 
-| Parameter | DRINKABLE | HYGIENE_OK | UNFIT |
-|-----------|-----------|------------|-------|
-| pH | 6,5 – 8,5 | 6,5 – 8,5 | di luar rentang |
-| TDS (ppm) | < 300 | < 1000 | ≥ 1000 |
+Berdasarkan **Permenkes No. 2 Tahun 2023**, Tabel 1 (Air Minum) dan Tabel 3 (Air Higiene & Sanitasi):
 
-Batas bawah inklusif, batas atas eksklusif, kecuali pH yang keduanya inklusif. Alert dipicu jika pH di luar `[6,5, 8,5]` atau TDS > 1000 ppm.
+| Parameter | DRINKABLE (`LAYAK`) | HYGIENE_OK (legacy) | UNFIT |
+|-----------|---------------------|---------------------|-------|
+| pH | 6,5 – 8,5 | 6,5 – 8,5 | di luar rentang |
+| TDS (ppm) | < 300 | < 300 | ≥ 300 |
+| Suhu | udara ± 3 °C | — | — |
+
+Batas bawah inklusif, batas atas eksklusif, kecuali pH yang keduanya inklusif. Alert dipicu jika pH di luar `[6,5, 8,5]` atau **TDS ≥ 300 ppm**.
+
+Catatan penting: Permenkes 2/2023 menetapkan **batas fisik-kimia yang identik** untuk air minum dan air higiene (pH 6,5–8,5; TDS < 300 mg/L; suhu udara ± 3 °C; kekeruhan < 3 NTU; warna 10 TCU; tidak berbau; E. coli dan Coliform 0 CFU/100 mL). Pasal 51 peraturan ini mencabut Permenkes 32/2017 — sumber angka TDS `< 1000` yang sebelumnya dipakai proyek. Karena sensor kita hanya mengukur pH, TDS, dan suhu, sistem **tidak dapat menilai parameter mikrobiologi atau persyaratan higiene penanganan**; status `LAYAK` hanya berarti **layak secara fisik-kimia**. Label UI ditandai tooltip untuk menjelaskan hal ini.
 
 ---
 
@@ -214,9 +219,11 @@ Konstanta placeholder di `SustainabilityPanel.tsx`: `VOLTAGE_V=3,7`, `ACTIVE_MA=
 
 ## Status & catatan terkini
 
-- Build & test hijau: `pio run -e esp32dev` SUCCESS, `pio run -e calibration` SUCCESS, `pio test -e native` 23/23 PASSED; web `tsc` lolos, 58/58 Vitest PASSED, `npm run build` sukses.
+- Build & test hijau: `pio run -e esp32dev` SUCCESS, `pio run -e calibration` SUCCESS, `pio test -e native` 25/25 PASSED; web `tsc` lolos, 59/59 Vitest PASSED, `npm run build` sukses.
 - Bug urutan argumen `publish()` 256dpi/MQTT sudah diperbaiki (`publish(topic, payload, retained, qos)`) — sebelumnya payload terkirim kosong.
 - Quirk broker EMQX yang dipakai: wildcard multi-level `#` tidak me-route retained, tetapi `+` dan topik exact normal. Dashboard sudah memakai topik exact + `water_quality/+/alert`.
 - Angka energi & umur baterai di dashboard masih **perkiraan** (belum ada pengukuran `P_sleep` aktual).
-- Kalibrasi pH masih terkendala sinyal probe yang belum stabil; pembacaan TDS juga masih di atas batas linear ADC. Perbaikan bersifat hardware (konektor BNC, probe, suplai, divider, ground bersama, kapasitor 100 nF GPIO35→GND). Konstanta kalibrasi diperbarui setelah nilai ukur stabil tersedia.
+- **Kalibrasi sensor sudah diterapkan (2026-11-22):** `V_PH7 = 2.852 V`, `V_PH4 = 3.030 V` (slope 59,3 mV/pH — dekat Nernst ideal), `V_TDS0 = 0.2531 V`, `TDS_K = 1.0`. Konstanta di `hal_sensors.h` dan baseline TDS di `sensor_math.cpp` sudah disesuaikan; probe kini stabil. `TDS_K` masih default 1,0 karena belum dikalibrasi span dengan larutan standar (mis. 342 ppm) — jalankan `t 342` di sketch kalibrasi jika ingin akurasi lebih baik.
 - Sensor kekeruhan (SEN0189 / NTU) sudah dihapus dari seluruh stack.
+- **Klasifikasi diselaraskan dengan Permenkes 2/2023 (2026-11-21):** TDS `hygiene_ok` diturunkan dari `< 1000` ke `< 300 ppm`, alert TDS kini ≥ 300 ppm, dan status `LAYAK` / `TIDAK LAYAK` (dua kategori fisik-kimia). `HYGIENE_OK` tetap ada di enum payload untuk kompatibilitas data lama tetapi tidak pernah dihasilkan klasifikasi baru. Sumber: `AturanPermenkesKlasifikasiAir.md` di root repo.
+- Sketch `kalibrasi_sensor_air_esp32/kalibrasi_sensor_air_esp32.ino` tetap disimpan sebagai sumber prosedur kalibrasi (perintah `p7`, `p4`, `t0`, `t <ppm>`, `k`). Firmware normal sudah memakai nilai hasil kalibrasinya.

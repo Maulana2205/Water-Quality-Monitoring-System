@@ -79,7 +79,8 @@ float read_ph(void) {
 
 float read_tds_ppm(float temperature_c) {
   const float adc_mv = read_adc_mv_median(kPinTds);
-  const float tds = tds_from_voltage(adc_mv, temperature_c);
+  const float tds = tds_from_voltage(adc_mv, temperature_c,
+                                     kTdsZeroMv, kTdsGain);
   // Diagnostic: bandingkan adc_mv dengan multimeter pada pin (GPIO32).
   // Catatan: > ~2450 mV keluar dari rentang linear ADC ESP32 (11 dB).
   Serial.print(F("[tds] adc_mv="));

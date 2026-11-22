@@ -61,7 +61,7 @@ If a command fails because a tool is missing (for example no host `g++` for `nat
 * **Firmware logic is pure.** Median filter, voltage conversion, pH calibration, TDS compensation, classification, and payload building go in `lib/water_logic` with no Arduino or ESP-IDF headers. `src/` only does I/O and calls into the library.
 * **Single source of truth for thresholds:** `shared/thresholds.json`. Never hardcode threshold numbers in firmware or web code. The firmware may generate a header from the JSON at build time or mirror it, but a test must fail if they drift.
 * **Payload contract:** `shared/telemetry.schema.json` plus `shared/fixtures/*.json`. Any change to the payload requires updating the schema, fixtures, firmware test, and web test in the same change.
-* Status values are enums: `DRINKABLE`, `HYGIENE_OK`, `UNFIT`. Indonesian labels ("LAYAK KONSUMSI", "LAYAK CUCI/MANDI", "TIDAK LAYAK") exist only in the web UI.
+* Status values are enums: `DRINKABLE`, `HYGIENE_OK`, `UNFIT`. Per Permenkes 2/2023 the physico-chemical limits are identical for drinking and hygiene water, so classification emits only `DRINKABLE` / `UNFIT`; `HYGIENE_OK` is kept for old-payload compatibility. Indonesian labels ("LAYAK", "LAYAK CUCI/MANDI" for legacy data, "TIDAK LAYAK") exist only in the web UI.
 * Boundary semantics: lower bound inclusive, upper bound exclusive, except pH where both bounds are inclusive. Tests must cover each boundary.
 
 ## Firmware rules

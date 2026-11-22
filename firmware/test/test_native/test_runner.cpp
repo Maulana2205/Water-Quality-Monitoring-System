@@ -16,8 +16,10 @@ extern void test_ph_returns_ph1_at_mv1_and_ph2_at_mv2(void);
 extern void test_ph_linear_in_between(void);
 extern void test_ph_guards_equal_calibration_voltages(void);
 extern void test_ph_uses_measured_calibration_data(void);
+extern void test_tds_subtracts_baseline_and_applies_gain(void);
 extern void test_ph_boundaries_inclusive(void);
 extern void test_tds_boundaries(void);
+extern void test_no_hygiene_tier_emitted(void);
 extern void test_worst_parameter_wins(void);
 extern void test_alert_reasons(void);
 
@@ -26,10 +28,6 @@ extern void test_build_telemetry_includes_battery_when_provided(void);
 extern void test_build_telemetry_rejects_nan(void);
 extern void test_build_telemetry_rejects_inf(void);
 extern void test_build_alert_keys(void);
-
-extern void test_ph_boundaries_inclusive(void);
-extern void test_tds_boundaries(void);
-extern void test_worst_parameter_wins(void);
 
 int main(void) {
     UNITY_BEGIN();
@@ -47,8 +45,10 @@ int main(void) {
     RUN_TEST(test_ph_linear_in_between);
     RUN_TEST(test_ph_guards_equal_calibration_voltages);
     RUN_TEST(test_ph_uses_measured_calibration_data);
+    RUN_TEST(test_tds_subtracts_baseline_and_applies_gain);
     RUN_TEST(test_ph_boundaries_inclusive);
     RUN_TEST(test_tds_boundaries);
+    RUN_TEST(test_no_hygiene_tier_emitted);
     RUN_TEST(test_worst_parameter_wins);
     RUN_TEST(test_alert_reasons);
     RUN_TEST(test_build_telemetry_all_keys_and_types);

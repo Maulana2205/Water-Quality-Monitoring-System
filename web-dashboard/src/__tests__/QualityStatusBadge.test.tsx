@@ -5,9 +5,9 @@ import { QualityStatusBadge } from '../components/QualityStatusBadge'
 afterEach(() => cleanup())
 
 describe('QualityStatusBadge', () => {
-  it('DRINKABLE -> LAYAK KONSUMSI, hijau', () => {
+  it('DRINKABLE -> LAYAK (fisik-kimia), hijau', () => {
     render(<QualityStatusBadge status="DRINKABLE" />)
-    const badge = screen.getByText('LAYAK KONSUMSI')
+    const badge = screen.getByText('LAYAK')
     expect(badge).toBeTruthy()
     expect(badge.className).toContain('bg-green-100')
     expect(badge.className).toContain('text-green-800')

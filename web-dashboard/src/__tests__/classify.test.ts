@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { classify, type Status } from '../lib/classify'
 
-describe('classify (driven by shared/thresholds.json)', () => {
+describe('classify (driven by shared/thresholds.json, Permenkes 2/2023)', () => {
   it('pH lower bound inclusive -> DRINKABLE at 6.5', () => {
     expect(classify(6.5, 100)).toBe('DRINKABLE')
   })
@@ -22,24 +22,30 @@ describe('classify (driven by shared/thresholds.json)', () => {
     expect(classify(7, 299)).toBe('DRINKABLE')
   })
 
-  it('TDS exactly 300 (upper exclusive) -> HYGIENE_OK', () => {
-    expect(classify(7, 300)).toBe('HYGIENE_OK')
+  it('TDS exactly 300 (upper exclusive) -> UNFIT', () => {
+    expect(classify(7, 300)).toBe('UNFIT')
   })
 
-  it('TDS below 1000 -> HYGIENE_OK', () => {
-    expect(classify(7, 999)).toBe('HYGIENE_OK')
+  it('TDS 999 -> UNFIT (no hygiene tier)', () => {
+    expect(classify(7, 999)).toBe('UNFIT')
   })
 
   it('TDS at 1000 -> UNFIT', () => {
     expect(classify(7, 1000)).toBe('UNFIT')
   })
 
-  it('worst parameter wins: TDS hygiene overrides good pH', () => {
-    expect(classify(7, 500)).toBe('HYGIENE_OK')
+  it('worst parameter wins: TDS >= 300 overrides good pH', () => {
+    expect(classify(7, 500)).toBe('UNFIT')
   })
 
   it('worst parameter wins: bad pH overrides everything', () => {
     expect(classify(9, 100)).toBe('UNFIT')
+  })
+
+  it('never emits HYGIENE_OK (identical physico-chemical limits)', () => {
+    for (const tds of [0, 299, 300, 500, 1000]) {
+      expect(classify(7, tds)).not.toBe('HYGIENE_OK')
+    }
   })
 
   it('returns a valid Status enum', () => {

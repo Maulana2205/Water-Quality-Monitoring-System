@@ -32,6 +32,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  vi.useRealTimers()
   vi.restoreAllMocks()
 })
 
@@ -72,6 +73,85 @@ describe('useTelemetry', () => {
     expect(result.current.latest).toBeNull()
     expect(result.current.invalidCount).toBe(1)
     expect(result.current.history).toHaveLength(0)
+  })
+
+  it('does not duplicate UNFIT alert on repeated telemetry', () => {
+    const { result } = renderHook(() => useTelemetry({ url: 'wss://broker:8084/mqtt', deviceId: 'esp32_water_01' }))
+    const unfit = Buffer.from(JSON.stringify({ ...validTelemetry, status: 'UNFIT' }))
+    act(() => {
+      onMessage?.('water_quality/esp32_water_01/telemetry', unfit)
+      onMessage?.('water_quality/esp32_water_01/telemetry', unfit)
+    })
+    expect(result.current.alerts.filter((a) => a === 'UNFIT')).toHaveLength(1)
+  })
+
+  it('ignores alerts from other devices', () => {
+    const { result } = renderHook(() => useTelemetry({ url: 'wss://broker:8084/mqtt', deviceId: 'esp32_water_01' }))
+    act(() => {
+      onMessage?.(
+        'water_quality/esp32_water_99/alert',
+        Buffer.from(JSON.stringify({ reasons: ['PH_OUT_OF_RANGE'] })),
+      )
+    })
+    expect(result.current.alerts).toEqual([])
+  })
+
+  it('accepts a valid alert from own device and counts invalid payloads', () => {
+    const { result } = renderHook(() => useTelemetry({ url: 'wss://broker:8084/mqtt', deviceId: 'esp32_water_01' }))
+    act(() => {
+      onMessage?.(
+        'water_quality/esp32_water_01/alert',
+        Buffer.from(JSON.stringify({ reasons: ['TDS_GT_MAX'] })),
+      )
+    })
+    expect(result.current.alerts).toEqual(['TDS_GT_MAX'])
+    act(() => {
+      onMessage?.('water_quality/esp32_water_01/alert', Buffer.from('not json'))
+    })
+    expect(result.current.invalidCount).toBe(1)
+  })
+
+  it('replaces alerts from the previous cycle when new telemetry arrives', () => {
+    const { result } = renderHook(() => useTelemetry({ url: 'wss://broker:8084/mqtt', deviceId: 'esp32_water_01' }))
+    act(() => {
+      onMessage?.(
+        'water_quality/esp32_water_01/alert',
+        Buffer.from(JSON.stringify({ reasons: ['TDS_GT_MAX'] })),
+      )
+    })
+    expect(result.current.alerts).toEqual(['TDS_GT_MAX'])
+
+    act(() => {
+      onMessage?.(
+        'water_quality/esp32_water_01/telemetry',
+        Buffer.from(JSON.stringify({ ...validTelemetry, seq: 2, status: 'DRINKABLE' })),
+      )
+    })
+    expect(result.current.alerts).toEqual([])
+  })
+
+  it('state becomes stale then offline without a new message', () => {
+    vi.useFakeTimers()
+    const start = new Date('2026-01-01T00:00:00Z')
+    vi.setSystemTime(start)
+    const tm = { ...validTelemetry, ts: Math.floor(start.getTime() / 1000), status: 'DRINKABLE' as const }
+    const { result } = renderHook(() => useTelemetry({ url: 'wss://broker:8084/mqtt', deviceId: 'esp32_water_01' }))
+    act(() => {
+      onMessage?.('water_quality/esp32_water_01/telemetry', Buffer.from(JSON.stringify(tm)))
+    })
+    expect(result.current.state).toBe('online')
+
+    act(() => {
+      vi.setSystemTime(start.getTime() + 46 * 60 * 1000)
+      vi.advanceTimersByTime(1000)
+    })
+    expect(result.current.state).toBe('stale')
+
+    act(() => {
+      vi.setSystemTime(start.getTime() + 91 * 60 * 1000)
+      vi.advanceTimersByTime(1000)
+    })
+    expect(result.current.state).toBe('offline')
   })
 
   it('disconnects client on unmount', () => {

@@ -1,6 +1,7 @@
 import thresholds from './thresholds.json'
 
 export type Status = 'DRINKABLE' | 'HYGIENE_OK' | 'UNFIT'
+export type SensorKey = 'temperature' | 'ph' | 'tds_ppm'
 
 interface Range {
   min: number
@@ -39,28 +40,31 @@ function inRange(value: number, r: Range): boolean {
   return lo && hi
 }
 
-function parameterStatus(value: number, drinkableMax: number, hygieneMax: number): Status {
-  if (value < drinkableMax) {
-    return 'DRINKABLE'
+/**
+ * Status untuk SATU parameter. Suhu tidak diklasifikasi (opsi C): suhu hanya
+ * dipakai untuk kompensasi TDS di firmware. null bila tidak ada ambang.
+ */
+export function classifyParameter(value: number, key: SensorKey): Status | null {
+  if (key === 'temperature') return null
+  if (key === 'ph') {
+    return inRange(value, t.parameters.ph.drinkable) ? 'DRINKABLE' : 'UNFIT'
   }
-  if (value < hygieneMax) {
-    return 'HYGIENE_OK'
-  }
-  return 'UNFIT'
+  return value < t.parameters.tds_ppm.drinkable.max ? 'DRINKABLE' : 'UNFIT'
+}
+
+/** Nilai garis ambang untuk grafik, langsung dari thresholds.json. */
+export const thresholdLines: Record<'ph' | 'tds_ppm', number[]> = {
+  ph: [t.parameters.ph.drinkable.min, t.parameters.ph.drinkable.max],
+  tds_ppm: [t.parameters.tds_ppm.drinkable.max],
 }
 
 /**
- * Classify water quality. Boundary semantics from shared/thresholds.json:
- * lower bound inclusive, upper bound exclusive, except pH where both bounds
- * are inclusive. Worst parameter wins.
+ * Klasifikasi gabungan. Permenkes 2/2023 memberi batas fisik-kimia identik
+ * untuk air minum dan higiene, jadi HYGIENE_OK tidak pernah dihasilkan.
  */
 export function classify(ph: number, tds_ppm: number): Status {
-  const phStatus = inRange(ph, t.parameters.ph.drinkable) ? 'DRINKABLE' : 'UNFIT'
-  const tdsStatus = parameterStatus(
-    tds_ppm,
-    t.parameters.tds_ppm.drinkable.max,
-    t.parameters.tds_ppm.hygiene_ok.max,
+  return worse(
+    classifyParameter(ph, 'ph') ?? 'UNFIT',
+    classifyParameter(tds_ppm, 'tds_ppm') ?? 'UNFIT',
   )
-
-  return worse(phStatus, tdsStatus)
 }

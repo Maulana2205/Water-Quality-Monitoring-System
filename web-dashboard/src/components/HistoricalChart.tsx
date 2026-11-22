@@ -13,16 +13,7 @@ import {
   YAxis,
 } from 'recharts'
 import { deviceState } from '../lib/staleness'
-import thresholds from '../lib/thresholds.json'
-
-type ThresholdDoc = {
-  parameters: {
-    ph: { drinkable: { min: number; max: number }; hygiene_ok: { max: number } }
-    tds_ppm: { drinkable: { max: number }; hygiene_ok: { max: number } }
-  }
-}
-
-const t = thresholds as ThresholdDoc
+import { classifyParameter, thresholdLines } from '../lib/classify'
 
 const COLORS = {
   temperature: '#22c3ee', // cyan / biru
@@ -48,27 +39,20 @@ const RANGES: Array<{ value: Range; label: string }> = [
 
 const HOURS: Record<Range, number> = { '1j': 1, '6j': 6, '12j': 12, '24j': 24 }
 
-// Garis ambang batas per parameter (dibuat dari shared/thresholds.json, nilai tidak diubah).
+// Garis ambang per parameter, seluruhnya dari shared/thresholds.json via classify.ts.
 const REF_LINES: Array<{
   yAxisId: string
   y: number
   label: string
   color: string
 }> = [
-  { yAxisId: 'ph', y: t.parameters.ph.drinkable.min, label: 'pH 6.5', color: '#f59e0b' },
-  { yAxisId: 'ph', y: t.parameters.ph.drinkable.max, label: 'pH 8.5', color: '#f59e0b' },
-  {
+  ...thresholdLines.ph.map((y) => ({ yAxisId: 'ph', y, label: `pH ${y}`, color: '#f59e0b' })),
+  ...thresholdLines.tds_ppm.map((y) => ({
     yAxisId: 'tds_ppm',
-    y: t.parameters.tds_ppm.drinkable.max,
-    label: 'TDS 300',
+    y,
+    label: `TDS ${y}`,
     color: '#ef4444',
-  },
-  {
-    yAxisId: 'tds_ppm',
-    y: t.parameters.tds_ppm.hygiene_ok.max,
-    label: 'TDS 1000',
-    color: '#b91c1c',
-  },
+  })),
 ]
 
 function formatWib(tsSeconds: number): string {
@@ -83,16 +67,7 @@ function paramStatus(
   value: number,
   key: 'temperature' | 'ph' | 'tds_ppm',
 ): 'DRINKABLE' | 'HYGIENE_OK' | 'UNFIT' | 'NORMAL' {
-  if (key === 'ph') {
-    return value >= 6.5 && value <= 8.5 ? 'DRINKABLE' : 'UNFIT'
-  }
-  if (key === 'temperature') {
-    return 'NORMAL' // tidak ada ambang batas tetap di thresholds.json
-  }
-  const p = t.parameters[key]
-  if (value < p.drinkable.max) return 'DRINKABLE'
-  if (value < p.hygiene_ok.max) return 'HYGIENE_OK'
-  return 'UNFIT'
+  return classifyParameter(value, key) ?? 'NORMAL'
 }
 
 const STATUS_INDICATOR: Record<string, { dot: string; text: string }> = {
@@ -102,7 +77,7 @@ const STATUS_INDICATOR: Record<string, { dot: string; text: string }> = {
   NORMAL: { dot: 'bg-cyan-400', text: 'text-cyan-700 dark:text-cyan-400' },
 }
 
-/** Tooltip gabungan: menampilkan waktu + semua 4 nilai parameter pada titik yang sama. */
+/** Tooltip gabungan: menampilkan waktu + ketiga nilai parameter pada titik yang sama. */
 function GraphTooltip({
   active,
   tooltipItems,
@@ -182,10 +157,10 @@ function MetricItem({
 
 /** Garis riwayat kualitas air (48 titik terakhir) dengan Recharts.
  *
- * Setiap parameter pakai sumbu Y independen (yAxisId) sehingga TDS (skala 0-1000+)
- * tidak menimpa suhu, pH, dan kekeruhan. Tooltip gabungan menampilkan semua 4
- * nilai pada waktu yang sama. Legend dapat diklik untuk menampilkan/menyembunyikan
- * parameter. Rentang waktu disaring di sisi klien (1/6/12/24 jam). */
+ * Setiap parameter pakai sumbu Y independen (yAxisId) sehingga TDS tidak
+ * menimpa suhu dan pH. Tooltip gabungan menampilkan ketiga nilai pada waktu
+ * yang sama. Legend dapat diklik untuk menampilkan/menyembunyikan parameter.
+ * Rentang waktu disaring di sisi klien (1/6/12/24 jam). */
 export function HistoricalChart({ data }: { data: Telemetry[] }) {
   const [range, setRange] = useState<Range>('24j')
   const latest = data[data.length - 1] ?? null

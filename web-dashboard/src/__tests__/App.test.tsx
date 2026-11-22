@@ -40,6 +40,28 @@ describe('App', () => {
     expect(screen.getByText('27.5 °C')).toBeTruthy()
   })
 
+  it('kartu TDS tetap hijau walaupun status overall UNFIT karena pH', () => {
+    mockUseTelemetry.mockReturnValue({
+      latest: {
+        device_id: 'esp32_water_01',
+        ts: 1,
+        seq: 1,
+        temperature: 27.5,
+        ph: 9.1,
+        tds_ppm: 111.6,
+        status: 'UNFIT',
+      },
+      history: [],
+      state: 'online',
+      connected: true,
+      invalidCount: 0,
+      alerts: [],
+    })
+    render(<App />)
+    const tdsValue = screen.getByText('111.6 ppm')
+    expect(tdsValue.className).toContain('text-green-700')
+  })
+
   it('menampilkan status offline dan pesan kosong ketika tidak ada data', () => {
     mockUseTelemetry.mockReturnValue({
       latest: null,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { classify, type Status } from '../lib/classify'
+import { classify, classifyParameter, thresholdLines, type Status } from '../lib/classify'
 
 describe('classify (driven by shared/thresholds.json, Permenkes 2/2023)', () => {
   it('pH lower bound inclusive -> DRINKABLE at 6.5', () => {
@@ -51,5 +51,28 @@ describe('classify (driven by shared/thresholds.json, Permenkes 2/2023)', () => 
   it('returns a valid Status enum', () => {
     const result: Status = classify(7, 100)
     expect(['DRINKABLE', 'HYGIENE_OK', 'UNFIT']).toContain(result)
+  })
+})
+
+describe('classifyParameter (per-sensor status, no HYGIENE_OK tier)', () => {
+  it('pH uses the same inclusive bounds', () => {
+    expect(classifyParameter(6.5, 'ph')).toBe('DRINKABLE')
+    expect(classifyParameter(8.5, 'ph')).toBe('DRINKABLE')
+    expect(classifyParameter(6.49, 'ph')).toBe('UNFIT')
+    expect(classifyParameter(8.51, 'ph')).toBe('UNFIT')
+  })
+
+  it('TDS is DRINKABLE below 300 and UNFIT from 300', () => {
+    expect(classifyParameter(299, 'tds_ppm')).toBe('DRINKABLE')
+    expect(classifyParameter(300, 'tds_ppm')).toBe('UNFIT')
+  })
+
+  it('temperature is not classified (option C)', () => {
+    expect(classifyParameter(30.5, 'temperature')).toBeNull()
+  })
+
+  it('thresholdLines has only one TDS line, derived from thresholds.json', () => {
+    expect(thresholdLines.tds_ppm).toEqual([300])
+    expect(thresholdLines.ph).toEqual([6.5, 8.5])
   })
 })

@@ -65,4 +65,29 @@ describe('History (ring buffer 48, localStorage)', () => {
     expect(h.size()).toBe(2)
     expect(h.getAll().map((p) => p.seq)).toEqual([1, 2])
   })
+
+  it('replaces an existing point with the same ts instead of duplicating it', () => {
+    clearStorage()
+    const h = new History()
+    h.add(point(1))
+    h.add({ ...point(1), tds_ppm: 999 })
+    expect(h.size()).toBe(1)
+    expect(h.getAll()[0].tds_ppm).toBe(999)
+  })
+
+  it('structurally invalid localStorage starts empty without crashing', () => {
+    setStorage(JSON.stringify([1, 2, 3]))
+    expect(() => new History()).not.toThrow()
+    expect(new History().size()).toBe(0)
+
+    setStorage(JSON.stringify([{ foo: 'bar' }]))
+    expect(new History().size()).toBe(0)
+  })
+
+  it('hydrate keeps valid entries and drops invalid ones', () => {
+    setStorage(JSON.stringify([point(1), { foo: 1 }, point(2)]))
+    const h = new History()
+    expect(h.size()).toBe(2)
+    expect(h.getAll().map((p) => p.seq)).toEqual([1, 2])
+  })
 })

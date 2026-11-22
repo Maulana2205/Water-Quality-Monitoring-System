@@ -21,7 +21,7 @@ const STATUS_DOT: Record<TelemetryStatus, string> = {
 }
 
 const STATUS_LABEL: Record<TelemetryStatus, string> = {
-  DRINKABLE: 'Layak minum',
+  DRINKABLE: 'Layak',
   HYGIENE_OK: 'Cuci/mandi',
   UNFIT: 'Tidak layak',
 }

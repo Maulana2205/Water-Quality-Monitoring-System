@@ -1,12 +1,14 @@
-import type { Telemetry } from './parseTelemetry'
+import { parseTelemetry, type Telemetry } from './parseTelemetry'
 
 const MAX_POINTS = 48
 const STORAGE_KEY = 'water_quality_history'
 
+type ValidResult = Extract<ReturnType<typeof parseTelemetry>, { ok: true }>
+
 /**
  * Ring buffer of the last 48 telemetry points (~24 h at 30 min/cycle),
- * persisted in localStorage. Corrupted storage is treated as empty
- * (never crashes the dashboard).
+ * persisted in localStorage. Each stored entry is re-validated with zod on
+ * hydrate, so corrupted or outdated storage never crashes the dashboard.
  */
 export class History {
   private points: Telemetry[] = []
@@ -18,12 +20,14 @@ export class History {
   private hydrate(): void {
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed)) {
-          this.points = parsed as Telemetry[]
-        }
-      }
+      if (!raw) return
+      const parsed: unknown = JSON.parse(raw)
+      if (!Array.isArray(parsed)) return
+      this.points = parsed
+        .map((value) => parseTelemetry(value))
+        .filter((result): result is ValidResult => result.ok)
+        .map((result) => result.value)
+        .slice(-MAX_POINTS)
     } catch {
       this.points = []
     }
@@ -38,9 +42,16 @@ export class History {
   }
 
   add(point: Telemetry): void {
-    this.points.push(point)
-    if (this.points.length > MAX_POINTS) {
-      this.points = this.points.slice(-MAX_POINTS)
+    // Retained messages arrive again on every reload/reconnect: replace the
+    // point with the same timestamp instead of storing a duplicate.
+    const index = this.points.findIndex((p) => p.ts === point.ts)
+    if (index >= 0) {
+      this.points[index] = point
+    } else {
+      this.points.push(point)
+      if (this.points.length > MAX_POINTS) {
+        this.points = this.points.slice(-MAX_POINTS)
+      }
     }
     this.persist()
   }

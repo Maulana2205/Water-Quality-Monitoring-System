@@ -17,6 +17,12 @@ describe('SensorCard', () => {
     expect(value.className).toContain('text-green-700')
   })
 
+  it('DRINKABLE label is LAYAK (physico-chemical only)', () => {
+    render(<SensorCard label="pH" value={7.2} unit="" status="DRINKABLE" />)
+    expect(screen.getAllByText('Layak').length).toBeGreaterThan(0)
+    expect(screen.queryByText('Layak minum')).toBeNull()
+  })
+
   it('renders "-" when value is missing', () => {
     render(<SensorCard label="TDS" unit="ppm" />)
     expect(screen.getByText('–')).toBeTruthy()

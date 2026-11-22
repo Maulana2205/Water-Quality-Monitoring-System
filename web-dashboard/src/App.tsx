@@ -5,6 +5,7 @@ import { QualityStatusBadge } from './components/QualityStatusBadge'
 import { SensorCard } from './components/SensorCard'
 import { SustainabilityPanel } from './components/SustainabilityPanel'
 import { useTelemetry } from './hooks/useTelemetry'
+import { classifyParameter } from './lib/classify'
 
 const URL = import.meta.env.VITE_MQTT_BROKER_URL ?? 'wss://broker:8084/mqtt'
 const DEVICE_ID = import.meta.env.VITE_DEVICE_ID ?? 'esp32_water_01'
@@ -127,7 +128,7 @@ export default function App() {
               label={s.label}
               value={latest[s.key]}
               unit={s.unit}
-              status={latest.status}
+              status={classifyParameter(latest[s.key], s.key) ?? undefined}
             />
           ))
         ) : (

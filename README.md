@@ -219,7 +219,7 @@ Konstanta placeholder di `SustainabilityPanel.tsx`: `VOLTAGE_V=3,7`, `ACTIVE_MA=
 
 ## Status & catatan terkini
 
-- Build & test hijau: `pio run -e esp32dev` SUCCESS, `pio run -e calibration` SUCCESS, `pio test -e native` 25/25 PASSED; web `tsc` lolos, 78/78 Vitest PASSED, `npm run lint` tanpa warning, `npm run build` sukses.
+- Build & test hijau: `pio run -e esp32dev` SUCCESS, `pio run -e calibration` SUCCESS, `pio test -e native` 25/25 PASSED; web `tsc` lolos, 81/81 Vitest PASSED, `npm run lint` tanpa warning, `npm run build` sukses.
 - Bug urutan argumen `publish()` 256dpi/MQTT sudah diperbaiki (`publish(topic, payload, retained, qos)`) — sebelumnya payload terkirim kosong.
 - Quirk broker EMQX yang dipakai: wildcard multi-level `#` tidak me-route retained, tetapi `+` dan topik exact normal. Dashboard sudah memakai topik exact + `water_quality/+/alert`.
 - Angka energi & umur baterai di dashboard masih **perkiraan** (belum ada pengukuran `P_sleep` aktual).
@@ -228,3 +228,4 @@ Konstanta placeholder di `SustainabilityPanel.tsx`: `VOLTAGE_V=3,7`, `ACTIVE_MA=
 - **Klasifikasi diselaraskan dengan Permenkes 2/2023 (2026-11-21):** TDS `hygiene_ok` diturunkan dari `< 1000` ke `< 300 ppm`, alert TDS kini ≥ 300 ppm, dan status `LAYAK` / `TIDAK LAYAK` (dua kategori fisik-kimia). `HYGIENE_OK` tetap ada di enum payload untuk kompatibilitas data lama tetapi tidak pernah dihasilkan klasifikasi baru. Sumber: `AturanPermenkesKlasifikasiAir.md` di root repo.
 - Sketch `kalibrasi_sensor_air_esp32/kalibrasi_sensor_air_esp32.ino` tetap disimpan sebagai sumber prosedur kalibrasi (perintah `p7`, `p4`, `t0`, `t <ppm>`, `k`). Firmware normal sudah memakai nilai hasil kalibrasinya.
 - **Audit web dashboard (2026-11-22):** status perangkat kini dihitung ulang tiap detik dari `ts` (tidak mandek di `ONLINE` saat board tidur); alert divalidasi zod, difilter per `deviceId`, tidak duplikat, dan diganti tiap siklus; riwayat melakukan dedup by `ts` dan re-validasi localStorage saat hydrate; garis ambang grafik sepenuhnya dari `thresholds.json` (garis "TDS 1000" yang usang dihapus); tiap kartu sensor memakai status parameter sendiri, bukan status global. Suhu sengaja **tidak** diklasifikasikan (opsi C) — hanya untuk kompensasi TDS.
+- **Grafik riwayat (2026-11-22):** XAxis numerik kini memakai domain rentang timestamp aktual (`timeDomain`) — bukan default Recharts `[0, 'auto']` yang membuat titik epoch menumpuk di ujung kanan sehingga garis tampak kosong. ResponsiveContainer juga diberi tinggi tetap 320 px.

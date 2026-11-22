@@ -14,6 +14,7 @@ import {
 } from 'recharts'
 import { deviceState } from '../lib/staleness'
 import { classifyParameter, thresholdLines } from '../lib/classify'
+import { timeDomain } from '../lib/chartDomain'
 
 const COLORS = {
   temperature: '#22c3ee', // cyan / biru
@@ -167,6 +168,7 @@ export function HistoricalChart({ data }: { data: Telemetry[] }) {
   const latestTs = latest?.ts ?? 0
   const hours = HOURS[range]
   const filtered = data.filter((p) => latestTs - p.ts <= hours * 3600)
+  const domain = timeDomain(filtered)
   const state = latest ? deviceState(latest.ts) : 'offline'
   const isLive = state === 'online'
 
@@ -263,7 +265,7 @@ export function HistoricalChart({ data }: { data: Telemetry[] }) {
 
       {/* Grafik */}
       <div className="px-5 pb-5 flex-1 min-h-[320px]">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height={320}>
           <LineChart
             data={filtered}
             margin={{ top: 10, right: 60, bottom: 34, left: 52 }}
@@ -272,6 +274,7 @@ export function HistoricalChart({ data }: { data: Telemetry[] }) {
             <XAxis
               dataKey="ts"
               type="number"
+              domain={domain}
               tickCount={7}
               tickFormatter={formatWib}
               axisLine={false}

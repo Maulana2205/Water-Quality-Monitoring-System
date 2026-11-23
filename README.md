@@ -11,7 +11,7 @@ Sistem ini mengukur **suhu, pH, dan TDS**, mengirim telemetry ke broker EMQX Clo
 | **Telemetry** | QoS 0, retained — langsung tampil saat dashboard dibuka |
 | **Alert** | QoS 1, menunggu PUBACK sebelum perangkat tidur |
 | **Klasifikasi** | LAYAK / TIDAK LAYAK (fisik-kimia), label guna: konsumsi · mandi · cuci baju |
-| **Status build** | Firmware 25/25 test · Web 96/96 test · `tsc`, `lint`, `build` hijau |
+| **Status build** | Firmware 25/25 test · Web 97/97 test · `tsc`, `lint`, `build` hijau |
 
 ## Daftar isi
 
@@ -260,7 +260,9 @@ Target active window ≤ 20 s; hasil ukur 50 siklus: mean **10,94 s**, p50 10,70
 
 Rumus: `E_day = 48 × (P_active × t_active) + P_sleep × (24 jam − 48 × t_active)`.
 
-Konstanta `SustainabilityPanel.tsx`: `VOLTAGE_V=3,7`, `ACTIVE_MA=120`, `SLEEP_MA=15`, `CAPACITY_MAH=3000`, `CYCLE_S=1800`. Angka energi dan umur baterai masih **perkiraan** karena `P_sleep` belum diukur.
+Konstanta `SustainabilityPanel.tsx` (2026-11-23): `VOLTAGE_V=3,7`, `ACTIVE_MA=214` (hasil ukur, fluktuatif), `SLEEP_MA=13,5` (hasil ukur stabil 13–14 mA), `CAPACITY_MAH=3000` (nilai nominal 18650), `CYCLE_S=1800`.
+
+Dengan active window rata-rata 10,94 s, estimasi kebutuhan energi ≈ **1.308 mWh/hari** dan umur baterai ≈ **8,5 hari**. Angka tetap **perkiraan** karena arus aktif berfluktuasi dan kapasitas baterai belum diverifikasi dengan uji discharge. Dominan pemakaian energi berasal dari arus sleep (13,5 mA × ~29,8 menit/siklus), bukan active window — penurunan arus sleep adalah cara paling efektif memperpanjang umur baterai.
 
 ---
 
@@ -269,11 +271,11 @@ Konstanta `SustainabilityPanel.tsx`: `VOLTAGE_V=3,7`, `ACTIVE_MA=120`, `SLEEP_MA
 | Area | Status | Catatan |
 |------|--------|---------|
 | Firmware | ✅ Stabil | Build `esp32dev` & `calibration` SUCCESS, Unity **25/25 PASSED** |
-| Web | ✅ Stabil | Vitest **96/96 PASSED**, `tsc`/`lint`/`build` hijau |
+| Web | ✅ Stabil | Vitest **97/97 PASSED**, `tsc`/`lint`/`build` hijau |
 | Kalibrasi pH/TDS | ✅ Terpasang | `V_PH7=2,852 V`, `V_PH4=3,030 V` (slope 59,3 mV/pH), `V_TDS0=0,2531 V` |
 | Klasifikasi | ✅ Sesuai regulasi | Permenkes 2/2023, satu ambang fisik-kimia untuk tiga guna |
 | UI/UX | ✅ Lengkap | Grafik per sensor, dark mode, panel kelayakan guna |
-| Energi | ⚠️ Perkiraan | `P_sleep` belum diukur; angka baterai belum final |
+| Energi | ⚠️ Estimasi | Arus aktif/sleep sudah diukur; kapasitas 3000 mAh masih nominal |
 | Deploy | ✅ Ter-push | `origin/main` sejajar dengan commit terbaru; Netlify auto-deploy |
 
 Catatan teknis:
@@ -289,7 +291,7 @@ Catatan teknis:
 | Prioritas | Item | Penanggung |
 |-----------|------|------------|
 | 1 | Field test 24–48 jam: retained telemetry, alert QoS 1, transisi `online → stale → offline`, isi grafik | User |
-| 2 | Ukur `P_sleep`, lalu perbarui konstanta energi di `SustainabilityPanel.tsx` | User → agen |
+| 2 | Verifikasi kapasitas nyata baterai 18650 (uji discharge) untuk mengganti nilai nominal 3000 mAh | User |
 | 3 | Kalibrasi span TDS dengan larutan 342 ppm (`t 342`), kirim `TDS_K` baru bila ingin akurasi lebih tinggi | User |
 | 4 | Validasi titik pH 7 pasca-flash (baru tervalidasi di buffer 4,01) | User |
 | 5 | Putuskan nasib 2 file referensi yang belum di-track: `AturanPermenkesKlasifikasiAir.md` dan `kalibrasi_sensor_air_esp32/` | User |

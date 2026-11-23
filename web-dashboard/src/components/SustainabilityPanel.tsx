@@ -1,13 +1,13 @@
 import type { Telemetry } from '../lib/parseTelemetry'
 import { Database, TrendingUp, Activity, Leaf, Clock, Zap, BatteryCharging } from 'lucide-react'
 
-// ponytail: angka di bawah ini PERKIRAAN sementara. Ganti dengan hasil ukur
-// P_sleep aktual (lihat README.md §Anggaran waktu & energi) — stock ESP32 DevKit idles jauh di
-// atas target 0.75 mA karena USB-UART/LDO/power LED, jadi arus "naik" saat
-// deep sleep itu wajar. Semua turunan (energi, umur baterai) dihitung dari sini.
+// Arus hasil pengukuran (2026-11-23): aktif ±214 mA (fluktuatif),
+// deep sleep 13-14 mA stabil -> dipakai nilai tengah 13,5 mA.
+// Active window rata-rata berasal dari telemetry active_time_ms.
+// Angka tetap estimasi karena kapasitas baterai 3000 mAh adalah nilai nominal.
 const VOLTAGE_V = 3.7 // baterai 18650 nominal
-const ACTIVE_MA = 120 // ≈ 0.444 W @ 3.7 V (budget README.md §Anggaran waktu & energi)
-const SLEEP_MA = 15 // placeholder DevKit stock (arus naik saat deep sleep)
+const ACTIVE_MA = 214 // hasil ukur active window
+const SLEEP_MA = 13.5 // hasil ukur deep sleep (13-14 mA)
 const CAPACITY_MAH = 3000 // 18650
 const CYCLE_S = 30 * 60 // 1 siklus / 30 menit (48 siklus/hari)
 
@@ -80,7 +80,7 @@ export function SustainabilityPanel({ data }: { data: Telemetry[] }) {
       </div>
       <p className="px-4 pt-3 text-xs text-slate-500 dark:text-slate-400 space-y-1">
         <span className="block">
-          Angka energi & umur baterai merupakan <strong>perkiraan</strong>.
+          Estimasi energi & umur baterai berdasarkan arus hasil ukur (214 mA aktif, 13,5 mA sleep) dan bersifat <strong>perkiraan</strong>.
         </span>
         <span className="block">
           TDS rendah berarti air lebih mudah diproses dan hemat energi pengolahan.

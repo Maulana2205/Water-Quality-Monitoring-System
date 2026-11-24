@@ -24,13 +24,13 @@ describe('SustainabilityPanel', () => {
     expect(screen.getByText('223 ppm')).toBeTruthy()
   })
 
-  it('memakai arus hasil ukur (214 mA aktif, 13,5 mA sleep)', () => {
+  it('memakai arus dan kapasitas hasil ukur (214 mA, 13,5 mA, 800 mAh)', () => {
     const point = { ...base, active_time_ms: 11000 }
     render(<SustainabilityPanel data={[point]} />)
     // 48 × [(3,7×214×11)/3600 + (3,7×13,5×1789)/3600] ≈ 1308 mWh/hari
     expect(screen.getByText('1308 mWh')).toBeTruthy()
-    // 3000 mAh × 3,7 V / 1307,6 mWh ≈ 8,5 hari
-    expect(screen.getByText('8.5 hari')).toBeTruthy()
+    // 800 mAh × 3,7 V / 1307,6 mWh ≈ 2,3 hari
+    expect(screen.getByText('2.3 hari')).toBeTruthy()
   })
 
   it('menampilkan nol ketika tidak ada data', () => {

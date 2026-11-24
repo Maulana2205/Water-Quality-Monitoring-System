@@ -26,7 +26,6 @@ Sistem ini mengukur **suhu, pH, dan TDS**, mengirim telemetry ke broker EMQX Clo
 - [Konfigurasi & keamanan](#konfigurasi--keamanan)
 - [Anggaran waktu & energi](#anggaran-waktu--energi)
 - [Status saat ini](#status-saat-ini)
-- [Yang masih perlu dilakukan](#yang-masih-perlu-dilakukan)
 
 ---
 
@@ -129,8 +128,8 @@ Alur satu siklus: **bangun → nyalakan sensor (gate GPIO26) → sampling → ko
 ├── tools/
 │   ├── .env.example
 │   └── simulate_device.mjs      # simulator telemetry
-├── AturanPermenkesKlasifikasiAir.md       # referensi regulasi (belum di-track)
-└── kalibrasi_sensor_air_esp32/            # sketch kalibrasi (belum di-track)
+├── AturanPermenkesKlasifikasiAir.md       # referensi regulasi
+└── kalibrasi_sensor_air_esp32/            # sketch kalibrasi
 ```
 
 ---
@@ -260,9 +259,9 @@ Target active window ≤ 20 s; hasil ukur 50 siklus: mean **10,94 s**, p50 10,70
 
 Rumus: `E_day = 48 × (P_active × t_active) + P_sleep × (24 jam − 48 × t_active)`.
 
-Konstanta `SustainabilityPanel.tsx` (2026-11-23): `VOLTAGE_V=3,7`, `ACTIVE_MA=214` (hasil ukur, fluktuatif), `SLEEP_MA=13,5` (hasil ukur stabil 13–14 mA), `CAPACITY_MAH=3000` (nilai nominal 18650), `CYCLE_S=1800`.
+Konstanta `SustainabilityPanel.tsx` (2026-11-24): `VOLTAGE_V=3,7`, `ACTIVE_MA=214` (hasil ukur, fluktuatif), `SLEEP_MA=13,5` (hasil ukur stabil 13–14 mA), `CAPACITY_MAH=800` (hasil ukur), `CYCLE_S=1800`.
 
-Dengan active window rata-rata 10,94 s, estimasi kebutuhan energi ≈ **1.308 mWh/hari** dan umur baterai ≈ **8,5 hari**. Angka tetap **perkiraan** karena arus aktif berfluktuasi dan kapasitas baterai belum diverifikasi dengan uji discharge. Dominan pemakaian energi berasal dari arus sleep (13,5 mA × ~29,8 menit/siklus), bukan active window — penurunan arus sleep adalah cara paling efektif memperpanjang umur baterai.
+Dengan active window rata-rata 10,94 s, kebutuhan energi ≈ **1.308 mWh/hari** dan umur baterai ≈ **2,3 hari**. Angka ini adalah estimasi dari arus dan kapasitas hasil ukur. Dominan pemakaian energi berasal dari arus sleep (13,5 mA × ~29,8 menit/siklus), bukan active window — penurunan arus sleep adalah cara paling efektif memperpanjang umur baterai.
 
 ---
 
@@ -275,7 +274,7 @@ Dengan active window rata-rata 10,94 s, estimasi kebutuhan energi ≈ **1.308 mW
 | Kalibrasi pH/TDS | ✅ Terpasang | `V_PH7=2,852 V`, `V_PH4=3,030 V` (slope 59,3 mV/pH), `V_TDS0=0,2531 V` |
 | Klasifikasi | ✅ Sesuai regulasi | Permenkes 2/2023, satu ambang fisik-kimia untuk tiga guna |
 | UI/UX | ✅ Lengkap | Grafik per sensor, dark mode, panel kelayakan guna |
-| Energi | ⚠️ Estimasi | Arus aktif/sleep sudah diukur; kapasitas 3000 mAh masih nominal |
+| Energi | ✅ Terukur | Arus aktif 214 mA, sleep 13,5 mA, kapasitas 800 mAh |
 | Deploy | ✅ Ter-push | `origin/main` sejajar dengan commit terbaru; Netlify auto-deploy |
 
 Catatan teknis:
@@ -283,16 +282,3 @@ Catatan teknis:
 - Broker EMQX yang dipakai tidak me-route wildcard `#`; `+` dan topik exact normal. Dashboard memakai topik exact + `water_quality/+/alert`.
 - Sensor kekeruhan (SEN0189/NTU) sudah dihapus dari seluruh stack.
 - Suhu sengaja tidak dijadikan penentu status; hanya dipakai untuk kompensasi TDS.
-
----
-
-## Yang masih perlu dilakukan
-
-| Prioritas | Item | Penanggung |
-|-----------|------|------------|
-| 1 | Field test 24–48 jam: retained telemetry, alert QoS 1, transisi `online → stale → offline`, isi grafik | User |
-| 2 | Verifikasi kapasitas nyata baterai 18650 (uji discharge) untuk mengganti nilai nominal 3000 mAh | User |
-| 3 | Kalibrasi span TDS dengan larutan 342 ppm (`t 342`), kirim `TDS_K` baru bila ingin akurasi lebih tinggi | User |
-| 4 | Validasi titik pH 7 pasca-flash (baru tervalidasi di buffer 4,01) | User |
-| 5 | Putuskan nasib 2 file referensi yang belum di-track: `AturanPermenkesKlasifikasiAir.md` dan `kalibrasi_sensor_air_esp32/` | User |
-| Opsional | Tambah `.github/workflows/ci.yml`, ukur coverage ≥ 80%, E2E Playwright | Agen |

@@ -8,7 +8,7 @@ import { Database, TrendingUp, Activity, Leaf, Clock, Zap, BatteryCharging } fro
 const VOLTAGE_V = 3.7 // baterai 18650 nominal
 const ACTIVE_MA = 214 // hasil ukur active window
 const SLEEP_MA = 13.5 // hasil ukur deep sleep (13-14 mA)
-const CAPACITY_MAH = 3000 // 18650
+const CAPACITY_MAH = 800 // hasil ukur kapasitas baterai
 const CYCLE_S = 30 * 60 // 1 siklus / 30 menit (48 siklus/hari)
 
 function energyMwh(voltageV: number, milliamps: number, seconds: number): number {

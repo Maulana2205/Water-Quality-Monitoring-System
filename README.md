@@ -186,7 +186,7 @@ Batas bawah inklusif, batas atas eksklusif, kecuali pH yang **kedua batasnya ink
 
 **Status enum:** `DRINKABLE`, `HYGIENE_OK`, `UNFIT`. Firmware hanya menghasilkan `DRINKABLE` / `UNFIT`; `HYGIENE_OK` tetap diterima untuk kompatibilitas payload lama.
 
-> **Batasan penting:** sensor hanya mengukur pH, TDS, dan suhu. Regulasi juga mensyaratkan kekeruhan < 3 NTU, warna 10 TCU, tidak berbau, serta E. coli/Coliform = 0 CFU/100 mL — semuanya **tidak terukur**. Jadi `LAYAK` berarti **layak secara fisik-kimia**, bukan jaminan aman diminum secara mikrobiologis.
+> **Batasan penting:** sensor hanya mengukur pH, TDS, dan suhu. Regulasi juga mensyaratkan parameter fisik, mikrobiologi, serta persyaratan higiene penanganan yang **tidak terukur** perangkat ini. Jadi `LAYAK` berarti **layak secara fisik-kimia**, bukan jaminan aman diminum secara mikrobiologis.
 
 ---
 
@@ -280,5 +280,4 @@ Dengan active window rata-rata 10,94 s, kebutuhan energi ≈ **1.308 mWh/hari** 
 Catatan teknis:
 - Urutan argumen `publish()` 256dpi/MQTT sudah diperbaiki menjadi `(topic, payload, retained, qos)` — sebelumnya payload terkirim kosong.
 - Broker EMQX yang dipakai tidak me-route wildcard `#`; `+` dan topik exact normal. Dashboard memakai topik exact + `water_quality/+/alert`.
-- Sensor kekeruhan (SEN0189/NTU) sudah dihapus dari seluruh stack.
 - Suhu sengaja tidak dijadikan penentu status; hanya dipakai untuk kompensasi TDS.
